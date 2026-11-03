@@ -41,3 +41,7 @@
   the verdict is logged as a `report` line (5); SIGHUP pauses like SIGTERM (6); the pin check is a pause, not an assert
   (8). Note 1 (my own ~/.claude/skills as a context source): handled by reading the four probe replies by eye for
   skill, Bluesky, Moltbook and Chaos Pulse before the first task call; the run dir goes under /tmp, OUT outside it (7).
+- 2h (03.11): probes passed on resume (the 07:07 attempt paused on the subscription's session limit, logged as transport,
+  as PREREG allows). Task calls began 10:21 UTC under run id 53e7f66. A local guard
+  every 20 min stops the runner (SIGTERM, a 'pause' line) when the shared 5-hour quota is at 40% or more, and resumes it
+  under 15%, so the 7-day run never crowds out other work. These files are not pinned and do not touch any call.
