@@ -6,7 +6,8 @@ MEMABL_USAGE (optional) = a usage log that gets one line per task call. Usage: p
   while no task request exists. Before every call: every PINNED file in the working tree must equal its blob in the
   pinned commit; the run dir's project-memory folder must be empty; ~/.claude/CLAUDE.md must not exist;
   `claude --version` must equal claude_version.txt.
-- Each invocation first runs the 4 probes (one per arm shape). Before the first task call a failed probe stops the
+- Each invocation first runs the 4 probes (one per arm shape), unless the run is already resolved (then it only
+  re-runs analyse.py, no calls). --probes-only stops after the probes. Before the first task call a failed probe stops the
   invocation (fix by a new step-2 commit). After it, a failed probe writes a terminal line: no further calls.
 - Cells (task x arm) are called in random.Random(6150).shuffle order over tasks.jsonl order x ARMS. Request lines are
   logged before their response. Reply classes: transport (rc != 0, empty stdout, or an api_errors.txt match on the
@@ -36,11 +37,11 @@ CMD = ['claude', '-p', '--model', 'claude-fable-5-1', '--output-format', 'text',
 now = lambda: dt.datetime.now(dt.timezone.utc).isoformat(timespec='seconds')
 
 def log(**k):
-    with open(OUT, 'a') as f:
+    with open(OUT, 'a', encoding='utf-8') as f:
         f.write(json.dumps({'ts': now(), **k}, ensure_ascii=False) + '\n'); f.flush(); os.fsync(f.fileno())
 
 def lines():
-    return [json.loads(l) for l in open(OUT)] if os.path.exists(OUT) else []
+    return [json.loads(l) for l in open(OUT, encoding='utf-8')] if os.path.exists(OUT) else []
 
 def stop(kind, why):
     log(kind=kind, why=why); print(f'{kind}: {why}'); sys.exit(2 if kind == 'pause' else 3)
@@ -57,18 +58,19 @@ def checks(pin):
     p = d
     while True:
         for n in ['CLAUDE.md', 'CLAUDE.local.md', '.claude/CLAUDE.md', '.claude/rules', '.claude/settings.json',
-                  '.claude/settings.local.json', '.mcp.json']:
+                  '.claude/settings.local.json', '.mcp.json', '.git']:
             if os.path.exists(os.path.join(p, n)): stop('pause', f'context file {n} in run dir ancestry')
         if p == os.path.dirname(p): break
         p = os.path.dirname(p)
-    for n in ['~/.claude/CLAUDE.local.md', '~/.claude/rules']:
+    for n in ['~/.claude/CLAUDE.local.md', '~/.claude/rules', '~/.claude/settings.json', '~/.claude/settings.local.json',
+              '/etc/claude-code/managed-settings.json', '/etc/claude-code/CLAUDE.md']:
         if os.path.exists(os.path.expanduser(n)): stop('pause', f'{n} exists')
     deadline()
     pm = os.path.expanduser('~/.claude/projects/' + re.sub(r'[^A-Za-z0-9]', '-', d) + '/memory')
     if os.path.isdir(pm) and os.listdir(pm): stop('pause', 'project memory folder of the run dir is not empty')
     if os.path.exists(os.path.expanduser('~/.claude/CLAUDE.md')): stop('pause', '~/.claude/CLAUDE.md exists')
     v = subprocess.run(['claude', '--version'], capture_output=True, text=True).stdout
-    if v != open(os.path.join(HERE, 'claude_version.txt')).read(): stop('pause', f'claude --version changed: {v.strip()}')
+    if v != open(os.path.join(HERE, 'claude_version.txt'), encoding='utf-8').read(): stop('pause', f'claude --version changed: {v.strip()}')
 
 def first_task_ts(L):
     ts = [y['ts'] for y in L if y['kind'] == 'request' and y.get('cell')]
@@ -80,7 +82,7 @@ def deadline():
         stop('terminal', 'unfinished: 7 days after the first task call')
 
 def open_cells():
-    tasks = [json.loads(l) for l in open(os.path.join(HERE, 'tasks.jsonl'))]
+    tasks = [json.loads(l) for l in open(os.path.join(HERE, 'tasks.jsonl'), encoding='utf-8')]
     R = {}
     for x in lines():
         if x['kind'] == 'response' and x.get('cell'): R.setdefault(tuple(x['cell']), []).append(x['cls'])
@@ -105,21 +107,21 @@ def block(task, arm):
     return '\n' + b
 
 def prompt(task, arm):
-    tpl = open(os.path.join(HERE, 'templates', task['type'] + '.txt')).read()
+    tpl = open(os.path.join(HERE, 'templates', task['type'] + '.txt'), encoding='utf-8').read()
     return fill(tpl, {'date': task['date'], 'situation': task['situation'], 'arm_block': block(task, arm)})
 
 def call(text):
     os.makedirs(RUNDIR, exist_ok=True)
     cmd = list(CMD); cmd[cmd.index(None)] = os.path.join(HERE, 'system_prompt.txt')
     try:
-        r = subprocess.run(cmd, input=text, capture_output=True, text=True, cwd=RUNDIR, timeout=900)
+        r = subprocess.run(cmd, input=text, capture_output=True, text=True, encoding='utf-8', cwd=RUNDIR, timeout=900)
         return r.returncode, r.stdout, r.stderr[-2000:]
     except subprocess.TimeoutExpired:
         return -9, '', 'timeout 900 s'
 
 def classify(rc, out, err):
     if re.search(r'unknown option|unknown argument|error: option', err, re.I): return 'flag'
-    api = re.compile(open(os.path.join(HERE, 'api_errors.txt')).read().strip())
+    api = re.compile(open(os.path.join(HERE, 'api_errors.txt'), encoding='utf-8').read().strip())
     first = out.split('\n', 1)[0] if out else ''
     if rc != 0 or not out or api.search(first): return 'transport'
     m = VALID.match(first)
@@ -131,10 +133,11 @@ def probe_fails(ptext, reply, markers, memfiles):
 
 def main():
     global lockf
+    if sys.argv[1:] not in ([], ['--probes-only']): print('usage: call.py [--probes-only]'); sys.exit(3)
     lockf = open(OUT + '.lock', 'w')
     try: fcntl.flock(lockf, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except OSError: print('another call.py holds this run'); sys.exit(3)
-    tasks = [json.loads(l) for l in open(os.path.join(HERE, 'tasks.jsonl'))]
+    tasks = [json.loads(l) for l in open(os.path.join(HERE, 'tasks.jsonl'), encoding='utf-8')]
     L = lines()
     if any(x['kind'] == 'terminal' for x in L): print('run is closed (terminal line)'); sys.exit(3)
     started = any(x['kind'] == 'request' and x.get('cell') for x in L)
@@ -142,18 +145,22 @@ def main():
     if not started:
         pin = subprocess.run(['git', '-C', REPO, 'rev-parse', 'HEAD'], capture_output=True, text=True).stdout.strip()
         if not runs or runs[-1]['run_id'] != pin:
-            log(kind='run', run_id=pin, claude_version=open(os.path.join(HERE, 'claude_version.txt')).read().strip())
+            log(kind='run', run_id=pin, claude_version=open(os.path.join(HERE, 'claude_version.txt'), encoding='utf-8').read().strip())
     else:
         pin = [x for x in L if x['kind'] == 'run' and x['ts'] <= first_task_ts(L)][-1]['run_id']
         deadline()
+    assert len(pin) == 40, f'bad pin {pin!r}'
+    if started and not open_cells():
+        if not any(x['kind'] == 'resolved' for x in L): log(kind='resolved', cells=len(ARMS) * len(tasks))
+        subprocess.run([sys.executable, os.path.join(HERE, 'analyse.py'), OUT], check=False); return
     env = sorted(k for k in os.environ if k.startswith(('CLAUDE', 'ANTHROPIC')))
     log(kind='session', pin=pin, resumed=started, rundir=os.path.realpath(RUNDIR), env_names=env)
-    markers = [m for m in open(os.path.join(HERE, 'probe_markers.txt')).read().split('\n') if m.strip()]
+    markers = [m.strip() for m in open(os.path.join(HERE, 'probe_markers.txt'), encoding='utf-8').read().split('\n') if m.strip()]
     memfiles = sorted({n for t in tasks for n in t['mem_files']})
     for arm in ARMS:                                   # probes, one per arm shape, on the first task's blocks
-        checks(pin)
         t = tasks[0]; ptext = 'You are fable-terminal (errata), an AI agent.\n' + block(t, arm) + '\n\n' + PROBE_Q
         for k in range(8):
+            checks(pin)
             log(kind='request', probe=arm, attempt=k)
             rc, out, err = call(ptext); cls = classify(rc, out, err)
             if cls == 'flag': stop('pause', 'unknown flag: ' + err[-300:])
@@ -166,6 +173,7 @@ def main():
         if hits:
             if started: stop('terminal', f'probe {arm} failed at a resume: {hits}')
             stop('pause', f'probe {arm} failed before the first task call: {hits}; fix by a new step-2 commit')
+    if '--probes-only' in sys.argv: log(kind='session_end', why='probes-only'); return
     order = [(t['task'], a) for t in tasks for a in ARMS]
     random.Random(6150).shuffle(order)
     byid = {t['task']: t for t in tasks}
@@ -183,7 +191,7 @@ def main():
             m = VALID.match(out.split('\n', 1)[0]) if cls == 'valid' else None
             log(kind='response', cell=list(cell), rc=rc, cls=cls, value=int(m.group(1)) if m else None, stdout=out, stderr=err)
             if os.environ.get('MEMABL_USAGE'):
-                with open(os.environ['MEMABL_USAGE'], 'a') as f:
+                with open(os.environ['MEMABL_USAGE'], 'a', encoding='utf-8') as f:
                     f.write(f'{now()} fable memabl-call {cell[0]} {cell[1]} {cls}\n')
             if cls == 'transport':
                 transport_run += 1

@@ -29,3 +29,11 @@
   CLAUDE*/ANTHROPIC* are logged per session. Notes not adopted: (d) the hard-coded path strings stay in call.py, so a
   false positive on them at a resume is terminal (accepted); (k) a torn last line of outputs.jsonl needs a hand-logged
   pause (documented here); (l) the MEM probe is weak by construction (PREREG rule).
+
+- 2f after round 2 of the runner review (Fable: 2 blocking, both fixed): `--probes-only` is now implemented (it stops
+  after the four probes); a re-invocation of a resolved run makes no calls and only re-runs analyse.py (tested on a
+  synthetic 160-cell log: 0 new requests, one resolved line after two invocations). Notes adopted: checks() before every
+  probe attempt (a); home and managed settings files and `.git` in the context-file checks (e); wider api_errors.txt (f);
+  utf-8 on every open and subprocess (g); 40-char pin assert (h); probe markers stripped (j). Not adopted: (b) the
+  empty-run-dir rule stays strict (a pause discards nothing); (i) note families and the counterparty covariate come
+  from a separate descriptive script after the run, not analyse.py.
