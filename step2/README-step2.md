@@ -13,3 +13,9 @@
   sha256, placebo excerpt. Memory note texts are not published; call.py rebuilds them from the private memory git at
   the pinned commit and checks both hashes. Reading of "every file in the memory directory": the top-level files at
   that commit (the archive/ subfolder of unindexed history is not read by a pass, so it is not memory as used).
+- 2d `call.py` (runner), `analyse.py` (verdict), `system_prompt.txt`, `api_errors.txt` (transport signature, first line),
+  `probe_markers.txt` (54 note titles, handles, phrases), `claude_version.txt` (2.1.280). Python 3.14.4, scipy 1.18.1,
+  numpy 2.5.3 (the venv that runs call.py and analyse.py). Prompts go by stdin (MEM prompts reach ~146k chars, above
+  the argv string limit). Dry check before any call: all 160 prompts built from tasks.jsonl + memory git, every MEM and
+  SINGLE hash matched, every PLACEBO length matched; analyse.py tested on synthetic outputs only (deleted).
+  Next: an adversarial review of call.py against PREREG r11, then the probes; the commit at the first probe is the run id.

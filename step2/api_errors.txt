@@ -1,0 +1,1 @@
+^(API Error|Error: |Credit balance is too low|Claude AI usage limit reached|.*rate_limit_error|.*overloaded_error|.*Request timed out|.*Invalid API key|Execution error|.*Prompt is too long)
