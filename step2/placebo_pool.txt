@@ -1,0 +1,3017 @@
+Help on package re:
+
+NAME
+    re - Support for regular expressions (RE).
+
+MODULE REFERENCE
+    https://docs.python.org/3.14/library/re#module-re
+
+    The following documentation is automatically generated from the Python
+    source files.  It may be incomplete, incorrect or include features that
+    are considered implementation detail and may vary between Python
+    implementations.  When in doubt, consult the module reference at the
+    location listed above.
+
+DESCRIPTION
+    This module provides regular expression matching operations similar to
+    those found in Perl.  It supports both 8-bit and Unicode strings; both
+    the pattern and the strings being processed can contain null bytes and
+    characters outside the US ASCII range.
+
+    Regular expressions can contain both special and ordinary characters.
+    Most ordinary characters, like "A", "a", or "0", are the simplest
+    regular expressions; they simply match themselves.  You can
+    concatenate ordinary characters, so last matches the string 'last'.
+
+    The special characters are:
+        "."      Matches any character except a newline.
+        "^"      Matches the start of the string.
+        "$"      Matches the end of the string or just before the newline at
+                 the end of the string.
+        "*"      Matches 0 or more (greedy) repetitions of the preceding RE.
+                 Greedy means that it will match as many repetitions as possible.
+        "+"      Matches 1 or more (greedy) repetitions of the preceding RE.
+        "?"      Matches 0 or 1 (greedy) of the preceding RE.
+        *?,+?,?? Non-greedy versions of the previous three special characters.
+        {m,n}    Matches from m to n repetitions of the preceding RE.
+        {m,n}?   Non-greedy version of the above.
+        "\\"     Either escapes special characters or signals a special sequence.
+        []       Indicates a set of characters.
+                 A "^" as the first character indicates a complementing set.
+        "|"      A|B, creates an RE that will match either A or B.
+        (...)    Matches the RE inside the parentheses.
+                 The contents can be retrieved or matched later in the string.
+        (?aiLmsux) The letters set the corresponding flags defined below.
+        (?:...)  Non-grouping version of regular parentheses.
+        (?P<name>...) The substring matched by the group is accessible by name.
+        (?P=name)     Matches the text matched earlier by the group named name.
+        (?#...)  A comment; ignored.
+        (?=...)  Matches if ... matches next, but doesn't consume the string.
+        (?!...)  Matches if ... doesn't match next.
+        (?<=...) Matches if preceded by ... (must be fixed length).
+        (?<!...) Matches if not preceded by ... (must be fixed length).
+        (?(id/name)yes|no) Matches yes pattern if the group with id/name matched,
+                           the (optional) no pattern otherwise.
+
+    The special sequences consist of "\\" and a character from the list
+    below.  If the ordinary character is not on the list, then the
+    resulting RE will match the second character.
+        \number  Matches the contents of the group of the same number.
+        \A       Matches only at the start of the string.
+        \z       Matches only at the end of the string.
+        \b       Matches the empty string, but only at the start or end of a word.
+        \B       Matches the empty string, but not at the start or end of a word.
+        \d       Matches any decimal digit; equivalent to the set [0-9] in
+                 bytes patterns or string patterns with the ASCII flag.
+                 In string patterns without the ASCII flag, it will match the whole
+                 range of Unicode digits.
+        \D       Matches any non-digit character; equivalent to [^\d].
+        \s       Matches any whitespace character; equivalent to [ \t\n\r\f\v] in
+                 bytes patterns or string patterns with the ASCII flag.
+                 In string patterns without the ASCII flag, it will match the whole
+                 range of Unicode whitespace characters.
+        \S       Matches any non-whitespace character; equivalent to [^\s].
+        \w       Matches any alphanumeric character; equivalent to [a-zA-Z0-9_]
+                 in bytes patterns or string patterns with the ASCII flag.
+                 In string patterns without the ASCII flag, it will match the
+                 range of Unicode alphanumeric characters (letters plus digits
+                 plus underscore).
+                 With LOCALE, it will match the set [0-9_] plus characters defined
+                 as letters for the current locale.
+        \W       Matches the complement of \w.
+        \\       Matches a literal backslash.
+
+    This module exports the following functions:
+        match     Match a regular expression pattern to the beginning of a string.
+        fullmatch Match a regular expression pattern to all of a string.
+        search    Search a string for the presence of a pattern.
+        sub       Substitute occurrences of a pattern found in a string.
+        subn      Same as sub, but also return the number of substitutions made.
+        split     Split a string by the occurrences of a pattern.
+        findall   Find all occurrences of a pattern in a string.
+        finditer  Return an iterator yielding a Match object for each match.
+        compile   Compile a pattern into a Pattern object.
+        purge     Clear the regular expression cache.
+        escape    Backslash all non-alphanumerics in a string.
+
+    Each function other than purge and escape can take an optional 'flags' argument
+    consisting of one or more of the following module constants, joined by "|".
+    A, L, and U are mutually exclusive.
+        A  ASCII       For string patterns, make \w, \W, \b, \B, \d, \D
+                       match the corresponding ASCII character categories
+                       (rather than the whole Unicode categories, which is the
+                       default).
+                       For bytes patterns, this flag is the only available
+                       behaviour and needn't be specified.
+        I  IGNORECASE  Perform case-insensitive matching.
+        L  LOCALE      Make \w, \W, \b, \B, dependent on the current locale.
+        M  MULTILINE   "^" matches the beginning of lines (after a newline)
+                       as well as the string.
+                       "$" matches the end of lines (before a newline) as well
+                       as the end of the string.
+        S  DOTALL      "." matches any character at all, including the newline.
+        X  VERBOSE     Ignore whitespace and comments for nicer looking RE's.
+        U  UNICODE     For compatibility only. Ignored for string patterns (it
+                       is the default), and forbidden for bytes patterns.
+
+    This module also defines exception 'PatternError', aliased to 'error' for
+    backward compatibility.
+
+PACKAGE CONTENTS
+    _casefix
+    _compiler
+    _constants
+    _parser
+
+CLASSES
+    builtins.Exception(builtins.BaseException)
+        PatternError
+    builtins.object
+        Match
+        Pattern
+    enum.IntFlag(builtins.int, enum.ReprEnum, enum.Flag)
+        RegexFlag
+
+    class Match(builtins.object)
+     |  The result of re.match() and re.search().
+     |  Match objects always have a boolean value of True.
+     |
+     |  Methods defined here:
+     |
+     |  __copy__(self, /)
+     |
+     |  __deepcopy__(self, memo, /)
+     |
+     |  __getitem__(self, key, /)
+     |      Return self[key].
+     |
+     |  __repr__(self, /)
+     |      Return repr(self).
+     |
+     |  end(self, group=0, /)
+     |      Return index of the end of the substring matched by group.
+     |
+     |  expand(self, /, template)
+     |      Return the string obtained by doing backslash substitution on the string template, as done by the sub() method.
+     |
+     |  group(...)
+     |      group([group1, ...]) -> str or tuple.
+     |      Return subgroup(s) of the match by indices or names.
+     |      For 0 returns the entire match.
+     |
+     |  groupdict(self, /, default=None)
+     |      Return a dictionary containing all the named subgroups of the match, keyed by the subgroup name.
+     |
+     |      default
+     |        Is used for groups that did not participate in the match.
+     |
+     |  groups(self, /, default=None)
+     |      Return a tuple containing all the subgroups of the match, from 1.
+     |
+     |      default
+     |        Is used for groups that did not participate in the match.
+     |
+     |  span(self, group=0, /)
+     |      For match object m, return the 2-tuple (m.start(group), m.end(group)).
+     |
+     |  start(self, group=0, /)
+     |      Return index of the start of the substring matched by group.
+     |
+     |  ----------------------------------------------------------------------
+     |  Class methods defined here:
+     |
+     |  __class_getitem__(object, /)
+     |      See PEP 585
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  endpos
+     |      The index into the string beyond which the RE engine will not go.
+     |
+     |  lastgroup
+     |      The name of the last matched capturing group.
+     |
+     |  lastindex
+     |      The integer index of the last matched capturing group.
+     |
+     |  pos
+     |      The index into the string at which the RE engine started looking for a match.
+     |
+     |  re
+     |      The regular expression object.
+     |
+     |  regs
+     |
+     |  string
+     |      The string passed to match() or search().
+
+    class Pattern(builtins.object)
+     |  Compiled regular expression object.
+     |
+     |  Methods defined here:
+     |
+     |  __copy__(self, /)
+     |
+     |  __deepcopy__(self, memo, /)
+     |
+     |  __eq__(self, value, /)
+     |      Return self==value.
+     |
+     |  __ge__(self, value, /)
+     |      Return self>=value.
+     |
+     |  __gt__(self, value, /)
+     |      Return self>value.
+     |
+     |  __hash__(self, /)
+     |      Return hash(self).
+     |
+     |  __le__(self, value, /)
+     |      Return self<=value.
+     |
+     |  __lt__(self, value, /)
+     |      Return self<value.
+     |
+     |  __ne__(self, value, /)
+     |      Return self!=value.
+     |
+     |  __repr__(self, /)
+     |      Return repr(self).
+     |
+     |  findall(self, /, string, pos=0, endpos=9223372036854775807)
+     |      Return a list of all non-overlapping matches of pattern in string.
+     |
+     |  finditer(self, /, string, pos=0, endpos=9223372036854775807)
+     |      Return an iterator over all non-overlapping matches for the RE pattern in string.
+     |
+     |      For each match, the iterator returns a match object.
+     |
+     |  fullmatch(self, /, string, pos=0, endpos=9223372036854775807)
+     |      Matches against all of the string.
+     |
+     |  match(self, /, string, pos=0, endpos=9223372036854775807)
+     |      Matches zero or more characters at the beginning of the string.
+     |
+     |  scanner(self, /, string, pos=0, endpos=9223372036854775807)
+     |
+     |  search(self, /, string, pos=0, endpos=9223372036854775807)
+     |      Scan through string looking for a match, and return a corresponding match object instance.
+     |
+     |      Return None if no position in the string matches.
+     |
+     |  split(self, /, string, maxsplit=0)
+     |      Split string by the occurrences of pattern.
+     |
+     |  sub(self, /, repl, string, count=0)
+     |      Return the string obtained by replacing the leftmost non-overlapping occurrences of pattern in string by the replacement repl.
+     |
+     |  subn(self, /, repl, string, count=0)
+     |      Return the tuple (new_string, number_of_subs_made) found by replacing the leftmost non-overlapping occurrences of pattern with the replacement repl.
+     |
+     |  ----------------------------------------------------------------------
+     |  Class methods defined here:
+     |
+     |  __class_getitem__(object, /)
+     |      See PEP 585
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  flags
+     |      The regex matching flags.
+     |
+     |  groupindex
+     |      A dictionary mapping group names to group numbers.
+     |
+     |  groups
+     |      The number of capturing groups in the pattern.
+     |
+     |  pattern
+     |      The pattern string from which the RE object was compiled.
+
+    class PatternError(builtins.Exception)
+     |  PatternError(msg, pattern=None, pos=None)
+     |
+     |  Exception raised for invalid regular expressions.
+     |
+     |  Attributes:
+     |
+     |      msg: The unformatted error message
+     |      pattern: The regular expression pattern
+     |      pos: The index in the pattern where compilation failed (may be None)
+     |      lineno: The line corresponding to pos (may be None)
+     |      colno: The column corresponding to pos (may be None)
+     |
+     |  Method resolution order:
+     |      PatternError
+     |      builtins.Exception
+     |      builtins.BaseException
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __init__(self, msg, pattern=None, pos=None) from re._constants.PatternError
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __weakref__
+     |      list of weak references to the object
+     |
+     |  ----------------------------------------------------------------------
+     |  Static methods inherited from builtins.Exception:
+     |
+     |  __new__(*args, **kwargs) class method of builtins.Exception
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from builtins.BaseException:
+     |
+     |  __reduce__(self, /)
+     |      Helper for pickle.
+     |
+     |  __repr__(self, /)
+     |      Return repr(self).
+     |
+     |  __setstate__(self, state, /)
+     |
+     |  __str__(self, /)
+     |      Return str(self).
+     |
+     |  add_note(self, note, /)
+     |      Add a note to the exception
+     |
+     |  with_traceback(self, tb, /)
+     |      Set self.__traceback__ to tb and return self.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from builtins.BaseException:
+     |
+     |  __cause__
+     |
+     |  __context__
+     |
+     |  __dict__
+     |
+     |  __suppress_context__
+     |
+     |  __traceback__
+     |
+     |  args
+
+    class RegexFlag(enum.IntFlag)
+     |  RegexFlag(*values)
+     |
+     |  An enumeration.
+     |
+     |  Method resolution order:
+     |      RegexFlag
+     |      enum.IntFlag
+     |      builtins.int
+     |      enum.ReprEnum
+     |      enum.Flag
+     |      enum.Enum
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __and__(self, other) from enum.Flag
+     |
+     |  __format__(self, format_spec, /) from builtins.int
+     |      Convert to a string according to format_spec.
+     |
+     |  __invert__(self) from enum.Flag
+     |
+     |  __new__(cls, value) from enum.Enum
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  __or__(self, other) from enum.Flag
+     |      Return self|value.
+     |
+     |  __rand__ = __and__(self, other)
+     |
+     |  __repr__ = global_flag_repr(self) from enum
+     |      use module.flag_name instead of class.flag_name
+     |
+     |      the module is the last module in case of a multi-module name
+     |
+     |  __ror__ = __or__(self, other)
+     |
+     |  __rxor__ = __xor__(self, other)
+     |
+     |  __str__(self, /) from builtins.object
+     |      Return str(self).
+     |
+     |  __xor__(self, other) from enum.Flag
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |
+     |  ASCII = re.ASCII
+     |
+     |  DEBUG = re.DEBUG
+     |
+     |  DOTALL = re.DOTALL
+     |
+     |  IGNORECASE = re.IGNORECASE
+     |
+     |  LOCALE = re.LOCALE
+     |
+     |  MULTILINE = re.MULTILINE
+     |
+     |  UNICODE = re.UNICODE
+     |
+     |  VERBOSE = re.VERBOSE
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from builtins.int:
+     |
+     |  __abs__(self, /)
+     |      abs(self)
+     |
+     |  __add__(self, value, /)
+     |      Return self+value.
+     |
+     |  __bool__(self, /)
+     |      True if self else False
+     |
+     |  __ceil__(self, /)
+     |      Ceiling of an Integral returns itself.
+     |
+     |  __divmod__(self, value, /)
+     |      Return divmod(self, value).
+     |
+     |  __eq__(self, value, /)
+     |      Return self==value.
+     |
+     |  __float__(self, /)
+     |      float(self)
+     |
+     |  __floor__(self, /)
+     |      Flooring an Integral returns itself.
+     |
+     |  __floordiv__(self, value, /)
+     |      Return self//value.
+     |
+     |  __ge__(self, value, /)
+     |      Return self>=value.
+     |
+     |  __getnewargs__(self, /)
+     |
+     |  __gt__(self, value, /)
+     |      Return self>value.
+     |
+     |  __hash__(self, /)
+     |      Return hash(self).
+     |
+     |  __index__(self, /)
+     |      Return self converted to an integer, if self is suitable for use as an index into a list.
+     |
+     |  __int__(self, /)
+     |      int(self)
+     |
+     |  __le__(self, value, /)
+     |      Return self<=value.
+     |
+     |  __lshift__(self, value, /)
+     |      Return self<<value.
+     |
+     |  __lt__(self, value, /)
+     |      Return self<value.
+     |
+     |  __mod__(self, value, /)
+     |      Return self%value.
+     |
+     |  __mul__(self, value, /)
+     |      Return self*value.
+     |
+     |  __ne__(self, value, /)
+     |      Return self!=value.
+     |
+     |  __neg__(self, /)
+     |      -self
+     |
+     |  __pos__(self, /)
+     |      +self
+     |
+     |  __pow__(self, value, mod=None, /)
+     |      Return pow(self, value, mod).
+     |
+     |  __radd__(self, value, /)
+     |      Return value+self.
+     |
+     |  __rdivmod__(self, value, /)
+     |      Return divmod(value, self).
+     |
+     |  __rfloordiv__(self, value, /)
+     |      Return value//self.
+     |
+     |  __rlshift__(self, value, /)
+     |      Return value<<self.
+     |
+     |  __rmod__(self, value, /)
+     |      Return value%self.
+     |
+     |  __rmul__(self, value, /)
+     |      Return value*self.
+     |
+     |  __round__(self, ndigits=None, /)
+     |      Rounding an Integral returns itself.
+     |
+     |      Rounding with an ndigits argument also returns an integer.
+     |
+     |  __rpow__(self, value, mod=None, /)
+     |      Return pow(value, self, mod).
+     |
+     |  __rrshift__(self, value, /)
+     |      Return value>>self.
+     |
+     |  __rshift__(self, value, /)
+     |      Return self>>value.
+     |
+     |  __rsub__(self, value, /)
+     |      Return value-self.
+     |
+     |  __rtruediv__(self, value, /)
+     |      Return value/self.
+     |
+     |  __sizeof__(self, /)
+     |      Returns size in memory, in bytes.
+     |
+     |  __sub__(self, value, /)
+     |      Return self-value.
+     |
+     |  __truediv__(self, value, /)
+     |      Return self/value.
+     |
+     |  __trunc__(self, /)
+     |      Truncating an Integral returns itself.
+     |
+     |  as_integer_ratio(self, /)
+     |      Return a pair of integers, whose ratio is equal to the original int.
+     |
+     |      The ratio is in lowest terms and has a positive denominator.
+     |
+     |      >>> (10).as_integer_ratio()
+     |      (10, 1)
+     |      >>> (-10).as_integer_ratio()
+     |      (-10, 1)
+     |      >>> (0).as_integer_ratio()
+     |      (0, 1)
+     |
+     |  bit_count(self, /)
+     |      Number of ones in the binary representation of the absolute value of self.
+     |
+     |      Also known as the population count.
+     |
+     |      >>> bin(13)
+     |      '0b1101'
+     |      >>> (13).bit_count()
+     |      3
+     |
+     |  bit_length(self, /)
+     |      Number of bits necessary to represent self in binary.
+     |
+     |      >>> bin(37)
+     |      '0b100101'
+     |      >>> (37).bit_length()
+     |      6
+     |
+     |  conjugate(self, /)
+     |      Returns self, the complex conjugate of any int.
+     |
+     |  is_integer(self, /)
+     |      Returns True. Exists for duck type compatibility with float.is_integer.
+     |
+     |  to_bytes(self, /, length=1, byteorder='big', *, signed=False)
+     |      Return an array of bytes representing an integer.
+     |
+     |      length
+     |        Length of bytes object to use.  An OverflowError is raised if the
+     |        integer is not representable with the given number of bytes.  Default
+     |        is length 1.
+     |      byteorder
+     |        The byte order used to represent the integer.  If byteorder is 'big',
+     |        the most significant byte is at the beginning of the byte array.  If
+     |        byteorder is 'little', the most significant byte is at the end of the
+     |        byte array.  To request the native byte order of the host system, use
+     |        sys.byteorder as the byte order value.  Default is to use 'big'.
+     |      signed
+     |        Determines whether two's complement is used to represent the integer.
+     |        If signed is False and a negative integer is given, an OverflowError
+     |        is raised.
+     |
+     |  ----------------------------------------------------------------------
+     |  Class methods inherited from builtins.int:
+     |
+     |  from_bytes(bytes, byteorder='big', *, signed=False)
+     |      Return the integer represented by the given array of bytes.
+     |
+     |      bytes
+     |        Holds the array of bytes to convert.  The argument must either
+     |        support the buffer protocol or be an iterable object producing bytes.
+     |        Bytes and bytearray are examples of built-in objects that support the
+     |        buffer protocol.
+     |      byteorder
+     |        The byte order used to represent the integer.  If byteorder is 'big',
+     |        the most significant byte is at the beginning of the byte array.  If
+     |        byteorder is 'little', the most significant byte is at the end of the
+     |        byte array.  To request the native byte order of the host system, use
+     |        sys.byteorder as the byte order value.  Default is to use 'big'.
+     |      signed
+     |        Indicates whether two's complement is used to represent the integer.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from builtins.int:
+     |
+     |  denominator
+     |      the denominator of a rational number in lowest terms
+     |
+     |  imag
+     |      the imaginary part of a complex number
+     |
+     |  numerator
+     |      the numerator of a rational number in lowest terms
+     |
+     |  real
+     |      the real part of a complex number
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from enum.Flag:
+     |
+     |  __contains__(self, other)
+     |      Returns True if self has at least the same flags set as other.
+     |
+     |  __iter__(self)
+     |      Returns flags in definition order.
+     |
+     |  __len__(self)
+     |      Return the number of members (no aliases)
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from enum.Enum:
+     |
+     |  __dir__(self)
+     |      Returns public methods and other interesting attributes.
+     |
+     |  __reduce_ex__(self, proto)
+     |      Helper for pickle.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from enum.Enum:
+     |
+     |  name
+     |      The name of the Enum member.
+     |
+     |  value
+     |      The value of the Enum member.
+     |
+     |  ----------------------------------------------------------------------
+     |  Static methods inherited from enum.EnumType:
+     |
+     |  __getitem__(name)
+     |      Return the member matching `name`.
+     |
+     |  ----------------------------------------------------------------------
+     |  Readonly properties inherited from enum.EnumType:
+     |
+     |  __members__
+     |      Returns a mapping of member name->value.
+     |
+     |      This mapping lists all enum members, including aliases. Note that this
+     |      is a read-only view of the internal mapping.
+
+    error = class PatternError(builtins.Exception)
+     |  error(msg, pattern=None, pos=None)
+     |
+     |  Exception raised for invalid regular expressions.
+     |
+     |  Attributes:
+     |
+     |      msg: The unformatted error message
+     |      pattern: The regular expression pattern
+     |      pos: The index in the pattern where compilation failed (may be None)
+     |      lineno: The line corresponding to pos (may be None)
+     |      colno: The column corresponding to pos (may be None)
+     |
+     |  Method resolution order:
+     |      PatternError
+     |      builtins.Exception
+     |      builtins.BaseException
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __init__(self, msg, pattern=None, pos=None) from re._constants.PatternError
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __weakref__
+     |      list of weak references to the object
+     |
+     |  ----------------------------------------------------------------------
+     |  Static methods inherited from builtins.Exception:
+     |
+     |  __new__(*args, **kwargs) class method of builtins.Exception
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from builtins.BaseException:
+     |
+     |  __reduce__(self, /)
+     |      Helper for pickle.
+     |
+     |  __repr__(self, /)
+     |      Return repr(self).
+     |
+     |  __setstate__(self, state, /)
+     |
+     |  __str__(self, /)
+     |      Return str(self).
+     |
+     |  add_note(self, note, /)
+     |      Add a note to the exception
+     |
+     |  with_traceback(self, tb, /)
+     |      Set self.__traceback__ to tb and return self.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from builtins.BaseException:
+     |
+     |  __cause__
+     |
+     |  __context__
+     |
+     |  __dict__
+     |
+     |  __suppress_context__
+     |
+     |  __traceback__
+     |
+     |  args
+
+FUNCTIONS
+    compile(pattern, flags=0)
+        Compile a regular expression pattern, returning a Pattern object.
+
+    escape(pattern)
+        Escape special characters in a string.
+
+    findall(pattern, string, flags=0)
+        Return a list of all non-overlapping matches in the string.
+
+        If one or more capturing groups are present in the pattern, return
+        a list of groups; this will be a list of tuples if the pattern
+        has more than one group.
+
+        Empty matches are included in the result.
+
+    finditer(pattern, string, flags=0)
+        Return an iterator over all non-overlapping matches in the
+        string.  For each match, the iterator returns a Match object.
+
+        Empty matches are included in the result.
+
+    fullmatch(pattern, string, flags=0)
+        Try to apply the pattern to all of the string, returning
+        a Match object, or None if no match was found.
+
+    match(pattern, string, flags=0)
+        Try to apply the pattern at the start of the string, returning
+        a Match object, or None if no match was found.
+
+    purge()
+        Clear the regular expression caches
+
+    search(pattern, string, flags=0)
+        Scan through string looking for a match to the pattern, returning
+        a Match object, or None if no match was found.
+
+    split(pattern, string, maxsplit=0, flags=0)
+        Split the source string by the occurrences of the pattern,
+        returning a list containing the resulting substrings.  If
+        capturing parentheses are used in pattern, then the text of all
+        groups in the pattern are also returned as part of the resulting
+        list.  If maxsplit is nonzero, at most maxsplit splits occur,
+        and the remainder of the string is returned as the final element
+        of the list.
+
+    sub(pattern, repl, string, count=0, flags=0)
+        Return the string obtained by replacing the leftmost
+        non-overlapping occurrences of the pattern in string by the
+        replacement repl.  repl can be either a string or a callable;
+        if a string, backslash escapes in it are processed.  If it is
+        a callable, it's passed the Match object and must return
+        a replacement string to be used.
+
+    subn(pattern, repl, string, count=0, flags=0)
+        Return a 2-tuple containing (new_string, number).
+        new_string is the string obtained by replacing the leftmost
+        non-overlapping occurrences of the pattern in the source
+        string by the replacement repl.  number is the number of
+        substitutions that were made. repl can be either a string or a
+        callable; if a string, backslash escapes in it are processed.
+        If it is a callable, it's passed the Match object and must
+        return a replacement string to be used.
+
+DATA
+    A = re.ASCII
+    ASCII = re.ASCII
+    DOTALL = re.DOTALL
+    I = re.IGNORECASE
+    IGNORECASE = re.IGNORECASE
+    L = re.LOCALE
+    LOCALE = re.LOCALE
+    M = re.MULTILINE
+    MULTILINE = re.MULTILINE
+    NOFLAG = re.NOFLAG
+    S = re.DOTALL
+    U = re.UNICODE
+    UNICODE = re.UNICODE
+    VERBOSE = re.VERBOSE
+    X = re.VERBOSE
+    __all__ = ['match', 'fullmatch', 'search', 'sub', 'subn', 'split', 'fi...
+
+VERSION
+    2.2.1
+
+
+Help on package json:
+
+NAME
+    json
+
+MODULE REFERENCE
+    https://docs.python.org/3.14/library/json#module-json
+
+    The following documentation is automatically generated from the Python
+    source files.  It may be incomplete, incorrect or include features that
+    are considered implementation detail and may vary between Python
+    implementations.  When in doubt, consult the module reference at the
+    location listed above.
+
+DESCRIPTION
+    JSON (JavaScript Object Notation) <https://json.org> is a subset of
+    JavaScript syntax (ECMA-262 3rd edition) used as a lightweight data
+    interchange format.
+
+    :mod:`json` exposes an API familiar to users of the standard library
+    :mod:`marshal` and :mod:`pickle` modules.  It is derived from a
+    version of the externally maintained simplejson library.
+
+    Encoding basic Python object hierarchies::
+
+        >>> import json
+        >>> json.dumps(['foo', {'bar': ('baz', None, 1.0, 2)}])
+        '["foo", {"bar": ["baz", null, 1.0, 2]}]'
+        >>> print(json.dumps("\"foo\bar"))
+        "\"foo\bar"
+        >>> print(json.dumps('\u1234'))
+        "\u1234"
+        >>> print(json.dumps('\\'))
+        "\\"
+        >>> print(json.dumps({"c": 0, "b": 0, "a": 0}, sort_keys=True))
+        {"a": 0, "b": 0, "c": 0}
+        >>> from io import StringIO
+        >>> io = StringIO()
+        >>> json.dump(['streaming API'], io)
+        >>> io.getvalue()
+        '["streaming API"]'
+
+    Compact encoding::
+
+        >>> import json
+        >>> mydict = {'4': 5, '6': 7}
+        >>> json.dumps([1,2,3,mydict], separators=(',', ':'))
+        '[1,2,3,{"4":5,"6":7}]'
+
+    Pretty printing::
+
+        >>> import json
+        >>> print(json.dumps({'4': 5, '6': 7}, sort_keys=True, indent=4))
+        {
+            "4": 5,
+            "6": 7
+        }
+
+    Decoding JSON::
+
+        >>> import json
+        >>> obj = ['foo', {'bar': ['baz', None, 1.0, 2]}]
+        >>> json.loads('["foo", {"bar":["baz", null, 1.0, 2]}]') == obj
+        True
+        >>> json.loads('"\\"foo\\bar"') == '"foo\x08ar'
+        True
+        >>> from io import StringIO
+        >>> io = StringIO('["streaming API"]')
+        >>> json.load(io)[0] == 'streaming API'
+        True
+
+    Specializing JSON object decoding::
+
+        >>> import json
+        >>> def as_complex(dct):
+        ...     if '__complex__' in dct:
+        ...         return complex(dct['real'], dct['imag'])
+        ...     return dct
+        ...
+        >>> json.loads('{"__complex__": true, "real": 1, "imag": 2}',
+        ...     object_hook=as_complex)
+        (1+2j)
+        >>> from decimal import Decimal
+        >>> json.loads('1.1', parse_float=Decimal) == Decimal('1.1')
+        True
+
+    Specializing JSON object encoding::
+
+        >>> import json
+        >>> def encode_complex(obj):
+        ...     if isinstance(obj, complex):
+        ...         return [obj.real, obj.imag]
+        ...     raise TypeError(f'Object of type {obj.__class__.__name__} '
+        ...                     f'is not JSON serializable')
+        ...
+        >>> json.dumps(2 + 1j, default=encode_complex)
+        '[2.0, 1.0]'
+        >>> json.JSONEncoder(default=encode_complex).encode(2 + 1j)
+        '[2.0, 1.0]'
+        >>> ''.join(json.JSONEncoder(default=encode_complex).iterencode(2 + 1j))
+        '[2.0, 1.0]'
+
+
+    Using json from the shell to validate and pretty-print::
+
+        $ echo '{"json":"obj"}' | python -m json
+        {
+            "json": "obj"
+        }
+        $ echo '{ 1.2:3.4}' | python -m json
+        Expecting property name enclosed in double quotes: line 1 column 3 (char 2)
+
+PACKAGE CONTENTS
+    __main__
+    decoder
+    encoder
+    scanner
+    tool
+
+CLASSES
+    builtins.ValueError(builtins.Exception)
+        json.decoder.JSONDecodeError
+    builtins.object
+        json.decoder.JSONDecoder
+        json.encoder.JSONEncoder
+
+    class JSONDecodeError(builtins.ValueError)
+     |  JSONDecodeError(msg, doc, pos)
+     |
+     |  Subclass of ValueError with the following additional properties:
+     |
+     |  msg: The unformatted error message
+     |  doc: The JSON document being parsed
+     |  pos: The start index of doc where parsing failed
+     |  lineno: The line corresponding to pos
+     |  colno: The column corresponding to pos
+     |
+     |  Method resolution order:
+     |      JSONDecodeError
+     |      builtins.ValueError
+     |      builtins.Exception
+     |      builtins.BaseException
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __init__(self, msg, doc, pos)
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |
+     |  __reduce__(self)
+     |      Helper for pickle.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __weakref__
+     |      list of weak references to the object
+     |
+     |  ----------------------------------------------------------------------
+     |  Static methods inherited from builtins.ValueError:
+     |
+     |  __new__(*args, **kwargs) class method of builtins.ValueError
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from builtins.BaseException:
+     |
+     |  __repr__(self, /)
+     |      Return repr(self).
+     |
+     |  __setstate__(self, state, /)
+     |
+     |  __str__(self, /)
+     |      Return str(self).
+     |
+     |  add_note(self, note, /)
+     |      Add a note to the exception
+     |
+     |  with_traceback(self, tb, /)
+     |      Set self.__traceback__ to tb and return self.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from builtins.BaseException:
+     |
+     |  __cause__
+     |
+     |  __context__
+     |
+     |  __dict__
+     |
+     |  __suppress_context__
+     |
+     |  __traceback__
+     |
+     |  args
+
+    class JSONDecoder(builtins.object)
+     |  JSONDecoder(
+     |      *,
+     |      object_hook=None,
+     |      parse_float=None,
+     |      parse_int=None,
+     |      parse_constant=None,
+     |      strict=True,
+     |      object_pairs_hook=None
+     |  )
+     |
+     |  Simple JSON <https://json.org> decoder
+     |
+     |  Performs the following translations in decoding by default:
+     |
+     |  +---------------+-------------------+
+     |  | JSON          | Python            |
+     |  +===============+===================+
+     |  | object        | dict              |
+     |  +---------------+-------------------+
+     |  | array         | list              |
+     |  +---------------+-------------------+
+     |  | string        | str               |
+     |  +---------------+-------------------+
+     |  | number (int)  | int               |
+     |  +---------------+-------------------+
+     |  | number (real) | float             |
+     |  +---------------+-------------------+
+     |  | true          | True              |
+     |  +---------------+-------------------+
+     |  | false         | False             |
+     |  +---------------+-------------------+
+     |  | null          | None              |
+     |  +---------------+-------------------+
+     |
+     |  It also understands ``NaN``, ``Infinity``, and ``-Infinity`` as
+     |  their corresponding ``float`` values, which is outside the JSON spec.
+     |
+     |  Methods defined here:
+     |
+     |  __init__(
+     |      self,
+     |      *,
+     |      object_hook=None,
+     |      parse_float=None,
+     |      parse_int=None,
+     |      parse_constant=None,
+     |      strict=True,
+     |      object_pairs_hook=None
+     |  )
+     |      ``object_hook``, if specified, will be called with the result
+     |      of every JSON object decoded and its return value will be used in
+     |      place of the given ``dict``.  This can be used to provide custom
+     |      deserializations (e.g. to support JSON-RPC class hinting).
+     |
+     |      ``object_pairs_hook``, if specified will be called with the result
+     |      of every JSON object decoded with an ordered list of pairs.  The
+     |      return value of ``object_pairs_hook`` will be used instead of the
+     |      ``dict``.  This feature can be used to implement custom decoders.
+     |      If ``object_hook`` is also defined, the ``object_pairs_hook`` takes
+     |      priority.
+     |
+     |      ``parse_float``, if specified, will be called with the string
+     |      of every JSON float to be decoded. By default this is equivalent to
+     |      float(num_str). This can be used to use another datatype or parser
+     |      for JSON floats (e.g. decimal.Decimal).
+     |
+     |      ``parse_int``, if specified, will be called with the string
+     |      of every JSON int to be decoded. By default this is equivalent to
+     |      int(num_str). This can be used to use another datatype or parser
+     |      for JSON integers (e.g. float).
+     |
+     |      ``parse_constant``, if specified, will be called with one of the
+     |      following strings: -Infinity, Infinity, NaN.
+     |      This can be used to raise an exception if invalid JSON numbers
+     |      are encountered.
+     |
+     |      If ``strict`` is false (true is the default), then control
+     |      characters will be allowed inside strings.  Control characters in
+     |      this context are those with character codes in the 0-31 range,
+     |      including ``'\t'`` (tab), ``'\n'``, ``'\r'`` and ``'\0'``.
+     |
+     |  decode(
+     |      self,
+     |      s,
+     |      _w=<built-in method match of re.Pattern object at 0x7227d363b2a0>
+     |  )
+     |      Return the Python representation of ``s`` (a ``str`` instance
+     |      containing a JSON document).
+     |
+     |  raw_decode(self, s, idx=0)
+     |      Decode a JSON document from ``s`` (a ``str`` beginning with
+     |      a JSON document) and return a 2-tuple of the Python
+     |      representation and the index in ``s`` where the document ended.
+     |
+     |      This can be used to decode a JSON document from a string that may
+     |      have extraneous data at the end.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __dict__
+     |      dictionary for instance variables
+     |
+     |  __weakref__
+     |      list of weak references to the object
+
+    class JSONEncoder(builtins.object)
+     |  JSONEncoder(
+     |      *,
+     |      skipkeys=False,
+     |      ensure_ascii=True,
+     |      check_circular=True,
+     |      allow_nan=True,
+     |      sort_keys=False,
+     |      indent=None,
+     |      separators=None,
+     |      default=None
+     |  )
+     |
+     |  Extensible JSON <https://json.org> encoder for Python data structures.
+     |
+     |  Supports the following objects and types by default:
+     |
+     |  +-------------------+---------------+
+     |  | Python            | JSON          |
+     |  +===================+===============+
+     |  | dict              | object        |
+     |  +-------------------+---------------+
+     |  | list, tuple       | array         |
+     |  +-------------------+---------------+
+     |  | str               | string        |
+     |  +-------------------+---------------+
+     |  | int, float        | number        |
+     |  +-------------------+---------------+
+     |  | True              | true          |
+     |  +-------------------+---------------+
+     |  | False             | false         |
+     |  +-------------------+---------------+
+     |  | None              | null          |
+     |  +-------------------+---------------+
+     |
+     |  To extend this to recognize other objects, subclass and implement a
+     |  ``.default()`` method with another method that returns a serializable
+     |  object for ``o`` if possible, otherwise it should call the superclass
+     |  implementation (to raise ``TypeError``).
+     |
+     |  Methods defined here:
+     |
+     |  __init__(
+     |      self,
+     |      *,
+     |      skipkeys=False,
+     |      ensure_ascii=True,
+     |      check_circular=True,
+     |      allow_nan=True,
+     |      sort_keys=False,
+     |      indent=None,
+     |      separators=None,
+     |      default=None
+     |  )
+     |      Constructor for JSONEncoder, with sensible defaults.
+     |
+     |      If skipkeys is false, then it is a TypeError to attempt
+     |      encoding of keys that are not str, int, float, bool or None.
+     |      If skipkeys is True, such items are simply skipped.
+     |
+     |      If ensure_ascii is true, the output is guaranteed to be str objects
+     |      with all incoming non-ASCII and non-printable characters escaped.
+     |      If ensure_ascii is false, the output can contain non-ASCII and
+     |      non-printable characters.
+     |
+     |      If check_circular is true, then lists, dicts, and custom encoded
+     |      objects will be checked for circular references during encoding to
+     |      prevent an infinite recursion (which would cause an RecursionError).
+     |      Otherwise, no such check takes place.
+     |
+     |      If allow_nan is true, then NaN, Infinity, and -Infinity will be
+     |      encoded as such.  This behavior is not JSON specification compliant,
+     |      but is consistent with most JavaScript based encoders and decoders.
+     |      Otherwise, it will be a ValueError to encode such floats.
+     |
+     |      If sort_keys is true, then the output of dictionaries will be
+     |      sorted by key; this is useful for regression tests to ensure
+     |      that JSON serializations can be compared on a day-to-day basis.
+     |
+     |      If indent is a non-negative integer, then JSON array
+     |      elements and object members will be pretty-printed with that
+     |      indent level.  An indent level of 0 will only insert newlines.
+     |      None is the most compact representation.
+     |
+     |      If specified, separators should be an (item_separator,
+     |      key_separator) tuple.  The default is (', ', ': ') if *indent* is
+     |      ``None`` and (',', ': ') otherwise.  To get the most compact JSON
+     |      representation, you should specify (',', ':') to eliminate
+     |      whitespace.
+     |
+     |      If specified, default is a function that gets called for objects
+     |      that can't otherwise be serialized.  It should return a JSON
+     |      encodable version of the object or raise a ``TypeError``.
+     |
+     |  default(self, o)
+     |      Implement this method in a subclass such that it returns
+     |      a serializable object for ``o``, or calls the base implementation
+     |      (to raise a ``TypeError``).
+     |
+     |      For example, to support arbitrary iterators, you could
+     |      implement default like this::
+     |
+     |          def default(self, o):
+     |              try:
+     |                  iterable = iter(o)
+     |              except TypeError:
+     |                  pass
+     |              else:
+     |                  return list(iterable)
+     |              # Let the base class default method raise the TypeError
+     |              return super().default(o)
+     |
+     |  encode(self, o)
+     |      Return a JSON string representation of a Python data structure.
+     |
+     |      >>> from json.encoder import JSONEncoder
+     |      >>> JSONEncoder().encode({"foo": ["bar", "baz"]})
+     |      '{"foo": ["bar", "baz"]}'
+     |
+     |  iterencode(self, o, _one_shot=False)
+     |      Encode the given object and yield each string
+     |      representation as available.
+     |
+     |      For example::
+     |
+     |          for chunk in JSONEncoder().iterencode(bigobject):
+     |              mysocket.write(chunk)
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __dict__
+     |      dictionary for instance variables
+     |
+     |  __weakref__
+     |      list of weak references to the object
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |
+     |  item_separator = ', '
+     |
+     |  key_separator = ': '
+
+FUNCTIONS
+    dump(
+        obj,
+        fp,
+        *,
+        skipkeys=False,
+        ensure_ascii=True,
+        check_circular=True,
+        allow_nan=True,
+        cls=None,
+        indent=None,
+        separators=None,
+        default=None,
+        sort_keys=False,
+        **kw
+    )
+        Serialize ``obj`` as a JSON formatted stream to ``fp`` (a
+        ``.write()``-supporting file-like object).
+
+        If ``skipkeys`` is true then ``dict`` keys that are not basic types
+        (``str``, ``int``, ``float``, ``bool``, ``None``) will be skipped
+        instead of raising a ``TypeError``.
+
+        If ``ensure_ascii`` is false, then the strings written to ``fp`` can
+        contain non-ASCII and non-printable characters if they appear in strings
+        contained in ``obj``. Otherwise, all such characters are escaped in JSON
+        strings.
+
+        If ``check_circular`` is false, then the circular reference check
+        for container types will be skipped and a circular reference will
+        result in an ``RecursionError`` (or worse).
+
+        If ``allow_nan`` is false, then it will be a ``ValueError`` to
+        serialize out of range ``float`` values (``nan``, ``inf``, ``-inf``)
+        in strict compliance of the JSON specification, instead of using the
+        JavaScript equivalents (``NaN``, ``Infinity``, ``-Infinity``).
+
+        If ``indent`` is a non-negative integer, then JSON array elements and
+        object members will be pretty-printed with that indent level. An indent
+        level of 0 will only insert newlines. ``None`` is the most compact
+        representation.
+
+        If specified, ``separators`` should be an ``(item_separator,
+        key_separator)`` tuple.  The default is ``(', ', ': ')`` if *indent* is
+        ``None`` and ``(',', ': ')`` otherwise.  To get the most compact JSON
+        representation, you should specify ``(',', ':')`` to eliminate
+        whitespace.
+
+        ``default(obj)`` is a function that should return a serializable version
+        of obj or raise TypeError. The default simply raises TypeError.
+
+        If *sort_keys* is true (default: ``False``), then the output of
+        dictionaries will be sorted by key.
+
+        To use a custom ``JSONEncoder`` subclass (e.g. one that overrides the
+        ``.default()`` method to serialize additional types), specify it with
+        the ``cls`` kwarg; otherwise ``JSONEncoder`` is used.
+
+    dumps(
+        obj,
+        *,
+        skipkeys=False,
+        ensure_ascii=True,
+        check_circular=True,
+        allow_nan=True,
+        cls=None,
+        indent=None,
+        separators=None,
+        default=None,
+        sort_keys=False,
+        **kw
+    )
+        Serialize ``obj`` to a JSON formatted ``str``.
+
+        If ``skipkeys`` is true then ``dict`` keys that are not basic types
+        (``str``, ``int``, ``float``, ``bool``, ``None``) will be skipped
+        instead of raising a ``TypeError``.
+
+        If ``ensure_ascii`` is false, then the return value can contain
+        non-ASCII and non-printable characters if they appear in strings
+        contained in ``obj``.  Otherwise, all such characters are escaped in
+        JSON strings.
+
+        If ``check_circular`` is false, then the circular reference check
+        for container types will be skipped and a circular reference will
+        result in an ``RecursionError`` (or worse).
+
+        If ``allow_nan`` is false, then it will be a ``ValueError`` to
+        serialize out of range ``float`` values (``nan``, ``inf``, ``-inf``) in
+        strict compliance of the JSON specification, instead of using the
+        JavaScript equivalents (``NaN``, ``Infinity``, ``-Infinity``).
+
+        If ``indent`` is a non-negative integer, then JSON array elements and
+        object members will be pretty-printed with that indent level. An indent
+        level of 0 will only insert newlines. ``None`` is the most compact
+        representation.
+
+        If specified, ``separators`` should be an ``(item_separator,
+        key_separator)`` tuple.  The default is ``(', ', ': ')`` if *indent* is
+        ``None`` and ``(',', ': ')`` otherwise.  To get the most compact JSON
+        representation, you should specify ``(',', ':')`` to eliminate
+        whitespace.
+
+        ``default(obj)`` is a function that should return a serializable version
+        of obj or raise TypeError. The default simply raises TypeError.
+
+        If *sort_keys* is true (default: ``False``), then the output of
+        dictionaries will be sorted by key.
+
+        To use a custom ``JSONEncoder`` subclass (e.g. one that overrides the
+        ``.default()`` method to serialize additional types), specify it with
+        the ``cls`` kwarg; otherwise ``JSONEncoder`` is used.
+
+    load(
+        fp,
+        *,
+        cls=None,
+        object_hook=None,
+        parse_float=None,
+        parse_int=None,
+        parse_constant=None,
+        object_pairs_hook=None,
+        **kw
+    )
+        Deserialize ``fp`` (a ``.read()``-supporting file-like object containing
+        a JSON document) to a Python object.
+
+        ``object_hook`` is an optional function that will be called with the
+        result of any object literal decode (a ``dict``). The return value of
+        ``object_hook`` will be used instead of the ``dict``. This feature
+        can be used to implement custom decoders (e.g. JSON-RPC class hinting).
+
+        ``object_pairs_hook`` is an optional function that will be called with
+        the result of any object literal decoded with an ordered list of pairs.
+        The return value of ``object_pairs_hook`` will be used instead of the
+        ``dict``.  This feature can be used to implement custom decoders.  If
+        ``object_hook`` is also defined, the ``object_pairs_hook`` takes
+        priority.
+
+        To use a custom ``JSONDecoder`` subclass, specify it with the ``cls``
+        kwarg; otherwise ``JSONDecoder`` is used.
+
+    loads(
+        s,
+        *,
+        cls=None,
+        object_hook=None,
+        parse_float=None,
+        parse_int=None,
+        parse_constant=None,
+        object_pairs_hook=None,
+        **kw
+    )
+        Deserialize ``s`` (a ``str``, ``bytes`` or ``bytearray`` instance
+        containing a JSON document) to a Python object.
+
+        ``object_hook`` is an optional function that will be called with the
+        result of any object literal decode (a ``dict``). The return value of
+        ``object_hook`` will be used instead of the ``dict``. This feature
+        can be used to implement custom decoders (e.g. JSON-RPC class hinting).
+
+        ``object_pairs_hook`` is an optional function that will be called with
+        the result of any object literal decoded with an ordered list of pairs.
+        The return value of ``object_pairs_hook`` will be used instead of the
+        ``dict``.  This feature can be used to implement custom decoders.  If
+        ``object_hook`` is also defined, the ``object_pairs_hook`` takes
+        priority.
+
+        ``parse_float``, if specified, will be called with the string
+        of every JSON float to be decoded. By default this is equivalent to
+        float(num_str). This can be used to use another datatype or parser
+        for JSON floats (e.g. decimal.Decimal).
+
+        ``parse_int``, if specified, will be called with the string
+        of every JSON int to be decoded. By default this is equivalent to
+        int(num_str). This can be used to use another datatype or parser
+        for JSON integers (e.g. float).
+
+        ``parse_constant``, if specified, will be called with one of the
+        following strings: -Infinity, Infinity, NaN.
+        This can be used to raise an exception if invalid JSON numbers
+        are encountered.
+
+        To use a custom ``JSONDecoder`` subclass, specify it with the ``cls``
+        kwarg; otherwise ``JSONDecoder`` is used.
+
+DATA
+    __all__ = ['dump', 'dumps', 'load', 'loads', 'JSONDecoder', 'JSONDecod...
+
+VERSION
+    2.0.9
+
+AUTHOR
+    Bob Ippolito <bob@redivi.com>
+
+
+Help on module csv:
+
+NAME
+    csv - CSV parsing and writing.
+
+MODULE REFERENCE
+    https://docs.python.org/3.14/library/csv#module-csv
+
+    The following documentation is automatically generated from the Python
+    source files.  It may be incomplete, incorrect or include features that
+    are considered implementation detail and may vary between Python
+    implementations.  When in doubt, consult the module reference at the
+    location listed above.
+
+DESCRIPTION
+    This module provides classes that assist in the reading and writing
+    of Comma Separated Value (CSV) files, and implements the interface
+    described by PEP 305.  Although many CSV files are simple to parse,
+    the format is not formally defined by a stable specification and
+    is subtle enough that parsing lines of a CSV file with something
+    like line.split(",") is bound to fail.  The module supports three
+    basic APIs: reading, writing, and registration of dialects.
+
+
+    DIALECT REGISTRATION:
+
+    Readers and writers support a dialect argument, which is a convenient
+    handle on a group of settings.  When the dialect argument is a string,
+    it identifies one of the dialects previously registered with the module.
+    If it is a class or instance, the attributes of the argument are used as
+    the settings for the reader or writer:
+
+        class excel:
+            delimiter = ','
+            quotechar = '"'
+            escapechar = None
+            doublequote = True
+            skipinitialspace = False
+            lineterminator = '\r\n'
+            quoting = QUOTE_MINIMAL
+
+    SETTINGS:
+
+        * quotechar - specifies a one-character string to use as the
+            quoting character.  It defaults to '"'.
+        * delimiter - specifies a one-character string to use as the
+            field separator.  It defaults to ','.
+        * skipinitialspace - specifies how to interpret spaces which
+            immediately follow a delimiter.  It defaults to False, which
+            means that spaces immediately following a delimiter is part
+            of the following field.
+        * lineterminator - specifies the character sequence which should
+            terminate rows.
+        * quoting - controls when quotes should be generated by the writer.
+            It can take on any of the following module constants:
+
+            csv.QUOTE_MINIMAL means only when required, for example, when a
+                field contains either the quotechar or the delimiter
+            csv.QUOTE_ALL means that quotes are always placed around fields.
+            csv.QUOTE_NONNUMERIC means that quotes are always placed around
+                fields which do not parse as integers or floating-point
+                numbers.
+            csv.QUOTE_STRINGS means that quotes are always placed around
+                fields which are strings.  Note that the Python value None
+                is not a string.
+            csv.QUOTE_NOTNULL means that quotes are only placed around fields
+                that are not the Python value None.
+            csv.QUOTE_NONE means that quotes are never placed around fields.
+        * escapechar - specifies a one-character string used to escape
+            the delimiter when quoting is set to QUOTE_NONE.
+        * doublequote - controls the handling of quotes inside fields.  When
+            True, two consecutive quotes are interpreted as one during read,
+            and when writing, each quote character embedded in the data is
+            written as two quotes
+
+CLASSES
+    builtins.Exception(builtins.BaseException)
+        _csv.Error
+    builtins.object
+        Dialect
+            excel
+                excel_tab
+            unix_dialect
+        DictReader
+        DictWriter
+        Sniffer
+
+    class Dialect(builtins.object)
+     |  Describe a CSV dialect.
+     |
+     |  This must be subclassed (see csv.excel).  Valid attributes are:
+     |  delimiter, quotechar, escapechar, doublequote, skipinitialspace,
+     |  lineterminator, quoting.
+     |
+     |  Methods defined here:
+     |
+     |  __init__(self)
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __dict__
+     |      dictionary for instance variables
+     |
+     |  __weakref__
+     |      list of weak references to the object
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |
+     |  delimiter = None
+     |
+     |  doublequote = None
+     |
+     |  escapechar = None
+     |
+     |  lineterminator = None
+     |
+     |  quotechar = None
+     |
+     |  quoting = None
+     |
+     |  skipinitialspace = None
+
+    class DictReader(builtins.object)
+     |  DictReader(
+     |      f,
+     |      fieldnames=None,
+     |      restkey=None,
+     |      restval=None,
+     |      dialect='excel',
+     |      *args,
+     |      **kwds
+     |  )
+     |
+     |  Methods defined here:
+     |
+     |  __init__(
+     |      self,
+     |      f,
+     |      fieldnames=None,
+     |      restkey=None,
+     |      restval=None,
+     |      dialect='excel',
+     |      *args,
+     |      **kwds
+     |  )
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |
+     |  __iter__(self)
+     |
+     |  __next__(self)
+     |
+     |  ----------------------------------------------------------------------
+     |  Class methods defined here:
+     |
+     |  __class_getitem__ = GenericAlias(args, /)
+     |      Represent a PEP 585 generic type
+     |
+     |      E.g. for t = list[int], t.__origin__ is list and t.__args__ is (int,).
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __dict__
+     |      dictionary for instance variables
+     |
+     |  __weakref__
+     |      list of weak references to the object
+     |
+     |  fieldnames
+
+    class DictWriter(builtins.object)
+     |  DictWriter(
+     |      f,
+     |      fieldnames,
+     |      restval='',
+     |      extrasaction='raise',
+     |      dialect='excel',
+     |      *args,
+     |      **kwds
+     |  )
+     |
+     |  Methods defined here:
+     |
+     |  __init__(
+     |      self,
+     |      f,
+     |      fieldnames,
+     |      restval='',
+     |      extrasaction='raise',
+     |      dialect='excel',
+     |      *args,
+     |      **kwds
+     |  )
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |
+     |  writeheader(self)
+     |
+     |  writerow(self, rowdict)
+     |
+     |  writerows(self, rowdicts)
+     |
+     |  ----------------------------------------------------------------------
+     |  Class methods defined here:
+     |
+     |  __class_getitem__ = GenericAlias(args, /)
+     |      Represent a PEP 585 generic type
+     |
+     |      E.g. for t = list[int], t.__origin__ is list and t.__args__ is (int,).
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __dict__
+     |      dictionary for instance variables
+     |
+     |  __weakref__
+     |      list of weak references to the object
+
+    class Error(builtins.Exception)
+     |  Method resolution order:
+     |      Error
+     |      builtins.Exception
+     |      builtins.BaseException
+     |      builtins.object
+     |
+     |  Static methods inherited from builtins.Exception:
+     |
+     |  __new__(*args, **kwargs) class method of builtins.Exception
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from builtins.BaseException:
+     |
+     |  __init__(self, /, *args, **kwargs)
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |
+     |  __reduce__(self, /)
+     |      Helper for pickle.
+     |
+     |  __repr__(self, /)
+     |      Return repr(self).
+     |
+     |  __setstate__(self, state, /)
+     |
+     |  __str__(self, /)
+     |      Return str(self).
+     |
+     |  add_note(self, note, /)
+     |      Add a note to the exception
+     |
+     |  with_traceback(self, tb, /)
+     |      Set self.__traceback__ to tb and return self.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from builtins.BaseException:
+     |
+     |  __cause__
+     |
+     |  __context__
+     |
+     |  __dict__
+     |
+     |  __suppress_context__
+     |
+     |  __traceback__
+     |
+     |  args
+
+    class Sniffer(builtins.object)
+     |  "Sniffs" the format of a CSV file (i.e. delimiter, quotechar)
+     |  Returns a Dialect object.
+     |
+     |  Methods defined here:
+     |
+     |  __init__(self)
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |
+     |  has_header(self, sample)
+     |
+     |  sniff(self, sample, delimiters=None)
+     |      Returns a dialect (or None) corresponding to the sample
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __dict__
+     |      dictionary for instance variables
+     |
+     |  __weakref__
+     |      list of weak references to the object
+
+    class excel(Dialect)
+     |  Describe the usual properties of Excel-generated CSV files.
+     |
+     |  Method resolution order:
+     |      excel
+     |      Dialect
+     |      builtins.object
+     |
+     |  Data and other attributes defined here:
+     |
+     |  delimiter = ','
+     |
+     |  doublequote = True
+     |
+     |  lineterminator = '\r\n'
+     |
+     |  quotechar = '"'
+     |
+     |  quoting = 0
+     |
+     |  skipinitialspace = False
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Dialect:
+     |
+     |  __init__(self)
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Dialect:
+     |
+     |  __dict__
+     |      dictionary for instance variables
+     |
+     |  __weakref__
+     |      list of weak references to the object
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes inherited from Dialect:
+     |
+     |  escapechar = None
+
+    class excel_tab(excel)
+     |  Describe the usual properties of Excel-generated TAB-delimited files.
+     |
+     |  Method resolution order:
+     |      excel_tab
+     |      excel
+     |      Dialect
+     |      builtins.object
+     |
+     |  Data and other attributes defined here:
+     |
+     |  delimiter = '\t'
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes inherited from excel:
+     |
+     |  doublequote = True
+     |
+     |  lineterminator = '\r\n'
+     |
+     |  quotechar = '"'
+     |
+     |  quoting = 0
+     |
+     |  skipinitialspace = False
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Dialect:
+     |
+     |  __init__(self)
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Dialect:
+     |
+     |  __dict__
+     |      dictionary for instance variables
+     |
+     |  __weakref__
+     |      list of weak references to the object
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes inherited from Dialect:
+     |
+     |  escapechar = None
+
+    class unix_dialect(Dialect)
+     |  Describe the usual properties of Unix-generated CSV files.
+     |
+     |  Method resolution order:
+     |      unix_dialect
+     |      Dialect
+     |      builtins.object
+     |
+     |  Data and other attributes defined here:
+     |
+     |  delimiter = ','
+     |
+     |  doublequote = True
+     |
+     |  lineterminator = '\n'
+     |
+     |  quotechar = '"'
+     |
+     |  quoting = 1
+     |
+     |  skipinitialspace = False
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Dialect:
+     |
+     |  __init__(self)
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Dialect:
+     |
+     |  __dict__
+     |      dictionary for instance variables
+     |
+     |  __weakref__
+     |      list of weak references to the object
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes inherited from Dialect:
+     |
+     |  escapechar = None
+
+FUNCTIONS
+    field_size_limit(new_limit=<unrepresentable>)
+        Sets an upper limit on parsed fields.
+
+        Returns old limit. If limit is not given, no new limit is set and
+        the old limit is returned
+
+    get_dialect(name)
+        Return the dialect instance associated with name.
+
+    list_dialects()
+        Return a list of all known dialect names.
+
+    reader(iterable, /, dialect='excel', **fmtparams)
+        Return a reader object that will process lines from the given iterable.
+
+        The "iterable" argument can be any object that returns a line
+        of input for each iteration, such as a file object or a list.  The
+        optional "dialect" argument defines a CSV dialect.  The function
+        also accepts optional keyword arguments which override settings
+        provided by the dialect.
+
+        The returned object is an iterator.  Each iteration returns a row
+        of the CSV file (which can span multiple input lines).
+
+    register_dialect(name, /, dialect='excel', **fmtparams)
+        Create a mapping from a string name to a CVS dialect.
+
+        The optional "dialect" argument specifies the base dialect instance
+        or the name of the registered dialect.  The function also accepts
+        optional keyword arguments which override settings provided by the
+        dialect.
+
+    unregister_dialect(name)
+        Delete the name/dialect mapping associated with a string name.
+
+    writer(fileobj, /, dialect='excel', **fmtparams)
+        Return a writer object that will write user data on the given file object.
+
+        The "fileobj" argument can be any object that supports the file API.
+        The optional "dialect" argument defines a CSV dialect.  The function
+        also accepts optional keyword arguments which override settings
+        provided by the dialect.
+
+DATA
+    QUOTE_ALL = 1
+    QUOTE_MINIMAL = 0
+    QUOTE_NONE = 3
+    QUOTE_NONNUMERIC = 2
+    QUOTE_NOTNULL = 5
+    QUOTE_STRINGS = 4
+    __all__ = ['QUOTE_MINIMAL', 'QUOTE_ALL', 'QUOTE_NONNUMERIC', 'QUOTE_NO...
+
+VERSION
+    1.0
+
+
+Help on module datetime:
+
+NAME
+    datetime - Specific date/time and related types.
+
+MODULE REFERENCE
+    https://docs.python.org/3.14/library/datetime#module-datetime
+
+    The following documentation is automatically generated from the Python
+    source files.  It may be incomplete, incorrect or include features that
+    are considered implementation detail and may vary between Python
+    implementations.  When in doubt, consult the module reference at the
+    location listed above.
+
+DESCRIPTION
+    See https://data.iana.org/time-zones/tz-link.html for
+    time zone and DST data sources.
+
+CLASSES
+    builtins.object
+        date
+            datetime
+        time
+        timedelta
+        tzinfo
+            timezone
+
+    class date(builtins.object)
+     |  date(year, month, day) --> date object
+     |
+     |  Methods defined here:
+     |
+     |  __add__(self, value, /)
+     |      Return self+value.
+     |
+     |  __eq__(self, value, /)
+     |      Return self==value.
+     |
+     |  __format__(...)
+     |      Formats self with strftime.
+     |
+     |  __ge__(self, value, /)
+     |      Return self>=value.
+     |
+     |  __gt__(self, value, /)
+     |      Return self>value.
+     |
+     |  __hash__(self, /)
+     |      Return hash(self).
+     |
+     |  __le__(self, value, /)
+     |      Return self<=value.
+     |
+     |  __lt__(self, value, /)
+     |      Return self<value.
+     |
+     |  __ne__(self, value, /)
+     |      Return self!=value.
+     |
+     |  __radd__(self, value, /)
+     |      Return value+self.
+     |
+     |  __reduce__(self, /)
+     |      __reduce__() -> (cls, state)
+     |
+     |  __replace__(self, /, **changes)
+     |      The same as replace().
+     |
+     |  __repr__(self, /)
+     |      Return repr(self).
+     |
+     |  __rsub__(self, value, /)
+     |      Return value-self.
+     |
+     |  __str__(self, /)
+     |      Return str(self).
+     |
+     |  __sub__(self, value, /)
+     |      Return self-value.
+     |
+     |  ctime(self, /)
+     |      Return ctime() style string.
+     |
+     |  isocalendar(self, /)
+     |      Return a named tuple containing ISO year, week number, and weekday.
+     |
+     |  isoformat(self, /)
+     |      Return string in ISO 8601 format, YYYY-MM-DD.
+     |
+     |  isoweekday(self, /)
+     |      Return the day of the week represented by the date.
+     |      Monday == 1 ... Sunday == 7
+     |
+     |  replace(self, /, year=unchanged, month=unchanged, day=unchanged)
+     |      Return date with new specified fields.
+     |
+     |  strftime(...)
+     |      format -> strftime() style string.
+     |
+     |  timetuple(self, /)
+     |      Return time tuple, compatible with time.localtime().
+     |
+     |  toordinal(self, /)
+     |      Return proleptic Gregorian ordinal.  January 1 of year 1 is day 1.
+     |
+     |  weekday(self, /)
+     |      Return the day of the week represented by the date.
+     |      Monday == 0 ... Sunday == 6
+     |
+     |  ----------------------------------------------------------------------
+     |  Class methods defined here:
+     |
+     |  fromisocalendar(...)
+     |      int, int, int -> Construct a date from the ISO year, week number and weekday.
+     |
+     |      This is the inverse of the date.isocalendar() function
+     |
+     |  fromisoformat(object, /)
+     |      str -> Construct a date from a string in ISO 8601 format.
+     |
+     |  fromordinal(...)
+     |      int -> date corresponding to a proleptic Gregorian ordinal.
+     |
+     |  fromtimestamp(timestamp, /)
+     |      Create a date from a POSIX timestamp.
+     |
+     |      The timestamp is a number, e.g. created via time.time(), that is interpreted
+     |      as local time.
+     |
+     |  strptime(...)
+     |      string, format -> new date parsed from a string (like time.strptime()).
+     |
+     |  today()
+     |      Current date or datetime:  same as self.__class__.fromtimestamp(time.time()).
+     |
+     |  ----------------------------------------------------------------------
+     |  Static methods defined here:
+     |
+     |  __new__(*args, **kwargs)
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  day
+     |
+     |  month
+     |
+     |  year
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |
+     |  max = datetime.date(9999, 12, 31)
+     |
+     |  min = datetime.date(1, 1, 1)
+     |
+     |  resolution = datetime.timedelta(days=1)
+
+    class datetime(date)
+     |  datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])
+     |
+     |  The year, month and day arguments are required. tzinfo may be None, or an
+     |  instance of a tzinfo subclass. The remaining arguments may be ints.
+     |
+     |  Method resolution order:
+     |      datetime
+     |      date
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __add__(self, value, /)
+     |      Return self+value.
+     |
+     |  __eq__(self, value, /)
+     |      Return self==value.
+     |
+     |  __ge__(self, value, /)
+     |      Return self>=value.
+     |
+     |  __gt__(self, value, /)
+     |      Return self>value.
+     |
+     |  __hash__(self, /)
+     |      Return hash(self).
+     |
+     |  __le__(self, value, /)
+     |      Return self<=value.
+     |
+     |  __lt__(self, value, /)
+     |      Return self<value.
+     |
+     |  __ne__(self, value, /)
+     |      Return self!=value.
+     |
+     |  __radd__(self, value, /)
+     |      Return value+self.
+     |
+     |  __reduce__(self, /)
+     |      __reduce__() -> (cls, state)
+     |
+     |  __reduce_ex__(...)
+     |      __reduce_ex__(proto) -> (cls, state)
+     |
+     |  __replace__(self, /, **changes)
+     |      The same as replace().
+     |
+     |  __repr__(self, /)
+     |      Return repr(self).
+     |
+     |  __rsub__(self, value, /)
+     |      Return value-self.
+     |
+     |  __str__(self, /)
+     |      Return str(self).
+     |
+     |  __sub__(self, value, /)
+     |      Return self-value.
+     |
+     |  astimezone(...)
+     |      tz -> convert to local time in new timezone tz
+     |
+     |  ctime(self, /)
+     |      Return ctime() style string.
+     |
+     |  date(self, /)
+     |      Return date object with same year, month and day.
+     |
+     |  dst(self, /)
+     |      Return self.tzinfo.dst(self).
+     |
+     |  isoformat(...)
+     |      [sep] -> string in ISO 8601 format, YYYY-MM-DDT[HH[:MM[:SS[.mmm[uuu]]]]][+HH:MM].
+     |      sep is used to separate the year from the time, and defaults to 'T'.
+     |      The optional argument timespec specifies the number of additional terms
+     |      of the time to include. Valid options are 'auto', 'hours', 'minutes',
+     |      'seconds', 'milliseconds' and 'microseconds'.
+     |
+     |  replace(self, /, year=unchanged, month=unchanged, day=unchanged,
+     |          hour=unchanged, minute=unchanged, second=unchanged,
+     |          microsecond=unchanged, tzinfo=unchanged, *, fold=unchanged)
+     |      Return datetime with new specified fields.
+     |
+     |  time(self, /)
+     |      Return time object with same time but with tzinfo=None.
+     |
+     |  timestamp(self, /)
+     |      Return POSIX timestamp as float.
+     |
+     |  timetuple(self, /)
+     |      Return time tuple, compatible with time.localtime().
+     |
+     |  timetz(self, /)
+     |      Return time object with same time and tzinfo.
+     |
+     |  tzname(self, /)
+     |      Return self.tzinfo.tzname(self).
+     |
+     |  utcoffset(self, /)
+     |      Return self.tzinfo.utcoffset(self).
+     |
+     |  utctimetuple(self, /)
+     |      Return UTC time tuple, compatible with time.localtime().
+     |
+     |  ----------------------------------------------------------------------
+     |  Class methods defined here:
+     |
+     |  combine(...)
+     |      date, time -> datetime with same date and time fields
+     |
+     |  fromisoformat(object, /)
+     |      string -> datetime from a string in most ISO 8601 formats
+     |
+     |  fromtimestamp(...)
+     |      timestamp[, tz] -> tz's local time from POSIX timestamp.
+     |
+     |  now(tz=None)
+     |      Returns new datetime object representing current time local to tz.
+     |
+     |        tz
+     |          Timezone object.
+     |
+     |      If no tz is specified, uses local timezone.
+     |
+     |  strptime(...)
+     |      string, format -> new datetime parsed from a string (like time.strptime()).
+     |
+     |  utcfromtimestamp(...)
+     |      Construct a naive UTC datetime from a POSIX timestamp.
+     |
+     |  utcnow()
+     |      Return a new datetime representing UTC day and time.
+     |
+     |  ----------------------------------------------------------------------
+     |  Static methods defined here:
+     |
+     |  __new__(*args, **kwargs)
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  fold
+     |
+     |  hour
+     |
+     |  microsecond
+     |
+     |  minute
+     |
+     |  second
+     |
+     |  tzinfo
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |
+     |  max = datetime.datetime(9999, 12, 31, 23, 59, 59, 999999)
+     |
+     |  min = datetime.datetime(1, 1, 1, 0, 0)
+     |
+     |  resolution = datetime.timedelta(microseconds=1)
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from date:
+     |
+     |  __format__(...)
+     |      Formats self with strftime.
+     |
+     |  isocalendar(self, /)
+     |      Return a named tuple containing ISO year, week number, and weekday.
+     |
+     |  isoweekday(self, /)
+     |      Return the day of the week represented by the date.
+     |      Monday == 1 ... Sunday == 7
+     |
+     |  strftime(...)
+     |      format -> strftime() style string.
+     |
+     |  toordinal(self, /)
+     |      Return proleptic Gregorian ordinal.  January 1 of year 1 is day 1.
+     |
+     |  weekday(self, /)
+     |      Return the day of the week represented by the date.
+     |      Monday == 0 ... Sunday == 6
+     |
+     |  ----------------------------------------------------------------------
+     |  Class methods inherited from date:
+     |
+     |  fromisocalendar(...)
+     |      int, int, int -> Construct a date from the ISO year, week number and weekday.
+     |
+     |      This is the inverse of the date.isocalendar() function
+     |
+     |  fromordinal(...)
+     |      int -> date corresponding to a proleptic Gregorian ordinal.
+     |
+     |  today()
+     |      Current date or datetime:  same as self.__class__.fromtimestamp(time.time()).
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from date:
+     |
+     |  day
+     |
+     |  month
+     |
+     |  year
+
+    class time(builtins.object)
+     |  time([hour[, minute[, second[, microsecond[, tzinfo]]]]]) --> a time object
+     |
+     |  All arguments are optional. tzinfo may be None, or an instance of
+     |  a tzinfo subclass. The remaining arguments may be ints.
+     |
+     |  Methods defined here:
+     |
+     |  __eq__(self, value, /)
+     |      Return self==value.
+     |
+     |  __format__(...)
+     |      Formats self with strftime.
+     |
+     |  __ge__(self, value, /)
+     |      Return self>=value.
+     |
+     |  __gt__(self, value, /)
+     |      Return self>value.
+     |
+     |  __hash__(self, /)
+     |      Return hash(self).
+     |
+     |  __le__(self, value, /)
+     |      Return self<=value.
+     |
+     |  __lt__(self, value, /)
+     |      Return self<value.
+     |
+     |  __ne__(self, value, /)
+     |      Return self!=value.
+     |
+     |  __reduce__(self, /)
+     |      __reduce__() -> (cls, state)
+     |
+     |  __reduce_ex__(...)
+     |      __reduce_ex__(proto) -> (cls, state)
+     |
+     |  __replace__(self, /, **changes)
+     |      The same as replace().
+     |
+     |  __repr__(self, /)
+     |      Return repr(self).
+     |
+     |  __str__(self, /)
+     |      Return str(self).
+     |
+     |  dst(self, /)
+     |      Return self.tzinfo.dst(self).
+     |
+     |  isoformat(...)
+     |      Return string in ISO 8601 format, [HH[:MM[:SS[.mmm[uuu]]]]][+HH:MM].
+     |
+     |      The optional argument timespec specifies the number of additional terms
+     |      of the time to include. Valid options are 'auto', 'hours', 'minutes',
+     |      'seconds', 'milliseconds' and 'microseconds'.
+     |
+     |  replace(self, /, hour=unchanged, minute=unchanged, second=unchanged,
+     |          microsecond=unchanged, tzinfo=unchanged, *, fold=unchanged)
+     |      Return time with new specified fields.
+     |
+     |  strftime(...)
+     |      format -> strftime() style string.
+     |
+     |  tzname(self, /)
+     |      Return self.tzinfo.tzname(self).
+     |
+     |  utcoffset(self, /)
+     |      Return self.tzinfo.utcoffset(self).
+     |
+     |  ----------------------------------------------------------------------
+     |  Class methods defined here:
+     |
+     |  fromisoformat(object, /)
+     |      string -> time from a string in ISO 8601 format
+     |
+     |  strptime(...)
+     |      string, format -> new time parsed from a string (like time.strptime()).
+     |
+     |  ----------------------------------------------------------------------
+     |  Static methods defined here:
+     |
+     |  __new__(*args, **kwargs)
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  fold
+     |
+     |  hour
+     |
+     |  microsecond
+     |
+     |  minute
+     |
+     |  second
+     |
+     |  tzinfo
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |
+     |  max = datetime.time(23, 59, 59, 999999)
+     |
+     |  min = datetime.time(0, 0)
+     |
+     |  resolution = datetime.timedelta(microseconds=1)
+
+    class timedelta(builtins.object)
+     |  Difference between two datetime values.
+     |
+     |  timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0)
+     |
+     |  All arguments are optional and default to 0.
+     |  Arguments may be integers or floats, and may be positive or negative.
+     |
+     |  Methods defined here:
+     |
+     |  __abs__(self, /)
+     |      abs(self)
+     |
+     |  __add__(self, value, /)
+     |      Return self+value.
+     |
+     |  __bool__(self, /)
+     |      True if self else False
+     |
+     |  __divmod__(self, value, /)
+     |      Return divmod(self, value).
+     |
+     |  __eq__(self, value, /)
+     |      Return self==value.
+     |
+     |  __floordiv__(self, value, /)
+     |      Return self//value.
+     |
+     |  __ge__(self, value, /)
+     |      Return self>=value.
+     |
+     |  __gt__(self, value, /)
+     |      Return self>value.
+     |
+     |  __hash__(self, /)
+     |      Return hash(self).
+     |
+     |  __le__(self, value, /)
+     |      Return self<=value.
+     |
+     |  __lt__(self, value, /)
+     |      Return self<value.
+     |
+     |  __mod__(self, value, /)
+     |      Return self%value.
+     |
+     |  __mul__(self, value, /)
+     |      Return self*value.
+     |
+     |  __ne__(self, value, /)
+     |      Return self!=value.
+     |
+     |  __neg__(self, /)
+     |      -self
+     |
+     |  __pos__(self, /)
+     |      +self
+     |
+     |  __radd__(self, value, /)
+     |      Return value+self.
+     |
+     |  __rdivmod__(self, value, /)
+     |      Return divmod(value, self).
+     |
+     |  __reduce__(self, /)
+     |      __reduce__() -> (cls, state)
+     |
+     |  __repr__(self, /)
+     |      Return repr(self).
+     |
+     |  __rfloordiv__(self, value, /)
+     |      Return value//self.
+     |
+     |  __rmod__(self, value, /)
+     |      Return value%self.
+     |
+     |  __rmul__(self, value, /)
+     |      Return value*self.
+     |
+     |  __rsub__(self, value, /)
+     |      Return value-self.
+     |
+     |  __rtruediv__(self, value, /)
+     |      Return value/self.
+     |
+     |  __str__(self, /)
+     |      Return str(self).
+     |
+     |  __sub__(self, value, /)
+     |      Return self-value.
+     |
+     |  __truediv__(self, value, /)
+     |      Return self/value.
+     |
+     |  total_seconds(self, /)
+     |      Total seconds in the duration.
+     |
+     |  ----------------------------------------------------------------------
+     |  Static methods defined here:
+     |
+     |  __new__(*args, **kwargs)
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  days
+     |      Number of days.
+     |
+     |  microseconds
+     |      Number of microseconds (>= 0 and less than 1 second).
+     |
+     |  seconds
+     |      Number of seconds (>= 0 and less than 1 day).
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |
+     |  max = datetime.timedelta(days=999999999, seconds=86399, microseconds=9...
+     |
+     |  min = datetime.timedelta(days=-999999999)
+     |
+     |  resolution = datetime.timedelta(microseconds=1)
+
+    class timezone(tzinfo)
+     |  Fixed offset from UTC implementation of tzinfo.
+     |
+     |  Method resolution order:
+     |      timezone
+     |      tzinfo
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __eq__(self, value, /)
+     |      Return self==value.
+     |
+     |  __ge__(self, value, /)
+     |      Return self>=value.
+     |
+     |  __getinitargs__(self, /)
+     |      pickle support
+     |
+     |  __gt__(self, value, /)
+     |      Return self>value.
+     |
+     |  __hash__(self, /)
+     |      Return hash(self).
+     |
+     |  __le__(self, value, /)
+     |      Return self<=value.
+     |
+     |  __lt__(self, value, /)
+     |      Return self<value.
+     |
+     |  __ne__(self, value, /)
+     |      Return self!=value.
+     |
+     |  __repr__(self, /)
+     |      Return repr(self).
+     |
+     |  __str__(self, /)
+     |      Return str(self).
+     |
+     |  dst(self, object, /)
+     |      Return None.
+     |
+     |  fromutc(self, object, /)
+     |      datetime in UTC -> datetime in local time.
+     |
+     |  tzname(self, object, /)
+     |      If name is specified when timezone is created, returns the name.  Otherwise returns offset as 'UTC(+|-)HH:MM'.
+     |
+     |  utcoffset(self, object, /)
+     |      Return fixed offset.
+     |
+     |  ----------------------------------------------------------------------
+     |  Static methods defined here:
+     |
+     |  __new__(*args, **kwargs)
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |
+     |  max = datetime.timezone(datetime.timedelta(seconds=86340))
+     |
+     |  min = datetime.timezone(datetime.timedelta(days=-1, seconds=60))
+     |
+     |  utc = datetime.timezone.utc
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from tzinfo:
+     |
+     |  __reduce__(self, /)
+     |      -> (cls, state)
+
+    class tzinfo(builtins.object)
+     |  Abstract base class for time zone info objects.
+     |
+     |  Methods defined here:
+     |
+     |  __reduce__(self, /)
+     |      -> (cls, state)
+     |
+     |  dst(self, object, /)
+     |      datetime -> DST offset as timedelta positive east of UTC.
+     |
+     |  fromutc(self, object, /)
+     |      datetime in UTC -> datetime in local time.
+     |
+     |  tzname(self, object, /)
+     |      datetime -> string name of time zone.
+     |
+     |  utcoffset(self, object, /)
+     |      datetime -> timedelta showing offset from UTC, negative values indicating West of UTC
+     |
+     |  ----------------------------------------------------------------------
+     |  Static methods defined here:
+     |
+     |  __new__(*args, **kwargs)
+     |      Create and return a new object.  See help(type) for accurate signature.
+
+DATA
+    MAXYEAR = 9999
+    MINYEAR = 1
+    UTC = datetime.timezone.utc
+    __all__ = ('date', 'datetime', 'time', 'timedelta', 'timezone', 'tzinf...
+
+
+Help on module textwrap:
+
+NAME
+    textwrap - Text wrapping and filling.
+
+MODULE REFERENCE
+    https://docs.python.org/3.14/library/textwrap#module-textwrap
+
+    The following documentation is automatically generated from the Python
+    source files.  It may be incomplete, incorrect or include features that
+    are considered implementation detail and may vary between Python
+    implementations.  When in doubt, consult the module reference at the
+    location listed above.
+
+CLASSES
+    builtins.object
+        TextWrapper
+
+    class TextWrapper(builtins.object)
+     |  TextWrapper(
+     |      width=70,
+     |      initial_indent='',
+     |      subsequent_indent='',
+     |      expand_tabs=True,
+     |      replace_whitespace=True,
+     |      fix_sentence_endings=False,
+     |      break_long_words=True,
+     |      drop_whitespace=True,
+     |      break_on_hyphens=True,
+     |      tabsize=8,
+     |      *,
+     |      max_lines=None,
+     |      placeholder=' [...]'
+     |  )
+     |
+     |  Object for wrapping/filling text.  The public interface consists of
+     |  the wrap() and fill() methods; the other methods are just there for
+     |  subclasses to override in order to tweak the default behaviour.
+     |  If you want to completely replace the main wrapping algorithm,
+     |  you'll probably have to override _wrap_chunks().
+     |
+     |  Several instance attributes control various aspects of wrapping:
+     |    width (default: 70)
+     |      the maximum width of wrapped lines (unless break_long_words
+     |      is false)
+     |    initial_indent (default: "")
+     |      string that will be prepended to the first line of wrapped
+     |      output.  Counts towards the line's width.
+     |    subsequent_indent (default: "")
+     |      string that will be prepended to all lines save the first
+     |      of wrapped output; also counts towards each line's width.
+     |    expand_tabs (default: true)
+     |      Expand tabs in input text to spaces before further processing.
+     |      Each tab will become 0 .. 'tabsize' spaces, depending on its position
+     |      in its line.  If false, each tab is treated as a single character.
+     |    tabsize (default: 8)
+     |      Expand tabs in input text to 0 .. 'tabsize' spaces, unless
+     |      'expand_tabs' is false.
+     |    replace_whitespace (default: true)
+     |      Replace all whitespace characters in the input text by spaces
+     |      after tab expansion.  Note that if expand_tabs is false and
+     |      replace_whitespace is true, every tab will be converted to a
+     |      single space!
+     |    fix_sentence_endings (default: false)
+     |      Ensure that sentence-ending punctuation is always followed
+     |      by two spaces.  Off by default because the algorithm is
+     |      (unavoidably) imperfect.
+     |    break_long_words (default: true)
+     |      Break words longer than 'width'.  If false, those words will not
+     |      be broken, and some lines might be longer than 'width'.
+     |    break_on_hyphens (default: true)
+     |      Allow breaking hyphenated words. If true, wrapping will occur
+     |      preferably on whitespaces and right after hyphens part of
+     |      compound words.
+     |    drop_whitespace (default: true)
+     |      Drop leading and trailing whitespace from lines.
+     |    max_lines (default: None)
+     |      Truncate wrapped lines.
+     |    placeholder (default: ' [...]')
+     |      Append to the last line of truncated text.
+     |
+     |  Methods defined here:
+     |
+     |  __init__(
+     |      self,
+     |      width=70,
+     |      initial_indent='',
+     |      subsequent_indent='',
+     |      expand_tabs=True,
+     |      replace_whitespace=True,
+     |      fix_sentence_endings=False,
+     |      break_long_words=True,
+     |      drop_whitespace=True,
+     |      break_on_hyphens=True,
+     |      tabsize=8,
+     |      *,
+     |      max_lines=None,
+     |      placeholder=' [...]'
+     |  )
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |
+     |  fill(self, text)
+     |      fill(text : string) -> string
+     |
+     |      Reformat the single paragraph in 'text' to fit in lines of no
+     |      more than 'self.width' columns, and return a new string
+     |      containing the entire wrapped paragraph.
+     |
+     |  wrap(self, text)
+     |      wrap(text : string) -> [string]
+     |
+     |      Reformat the single paragraph in 'text' so it fits in lines of
+     |      no more than 'self.width' columns, and return a list of wrapped
+     |      lines.  Tabs in 'text' are expanded with string.expandtabs(),
+     |      and all other whitespace characters (including newline) are
+     |      converted to space.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __dict__
+     |      dictionary for instance variables
+     |
+     |  __weakref__
+     |      list of weak references to the object
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |
+     |  sentence_end_re = re.compile('[a-z][\\.\\!\\?][\\"\\\']?\\z')
+     |
+     |  unicode_whitespace_trans = {9: 32, 10: 32, 11: 32, 12: 32, 13: 32, 32:...
+     |
+     |  wordsep_re = re.compile('\n        ( # any whitespace\n      ...# word...
+     |
+     |  wordsep_simple_re = re.compile('([\\\t\\\n\\\x0b\\\x0c\\\r\\ ]+)')
+
+FUNCTIONS
+    dedent(text)
+        Remove any common leading whitespace from every line in `text`.
+
+        This can be used to make triple-quoted strings line up with the left
+        edge of the display, while still presenting them in the source code
+        in indented form.
+
+        Note that tabs and spaces are both treated as whitespace, but they
+        are not equal: the lines "  hello" and "\thello" are
+        considered to have no common leading whitespace.
+
+        Entirely blank lines are normalized to a newline character.
+
+    fill(text, width=70, **kwargs)
+        Fill a single paragraph of text, returning a new string.
+
+        Reformat the single paragraph in 'text' to fit in lines of no more
+        than 'width' columns, and return a new string containing the entire
+        wrapped paragraph.  As with wrap(), tabs are expanded and other
+        whitespace characters converted to space.  See TextWrapper class for
+        available keyword args to customize wrapping behaviour.
+
+    indent(text, prefix, predicate=None)
+        Adds 'prefix' to the beginning of selected lines in 'text'.
+
+        If 'predicate' is provided, 'prefix' will only be added to the lines
+        where 'predicate(line)' is True. If 'predicate' is not provided,
+        it will default to adding 'prefix' to all non-empty lines that do not
+        consist solely of whitespace characters.
+
+    shorten(text, width, **kwargs)
+        Collapse and truncate the given text to fit in the given width.
+
+        The text first has its whitespace collapsed.  If it then fits in
+        the *width*, it is returned as is.  Otherwise, as many words
+        as possible are joined and then the placeholder is appended::
+
+            >>> textwrap.shorten("Hello  world!", width=12)
+            'Hello world!'
+            >>> textwrap.shorten("Hello  world!", width=11)
+            'Hello [...]'
+
+    wrap(text, width=70, **kwargs)
+        Wrap a single paragraph of text, returning a list of wrapped lines.
+
+        Reformat the single paragraph in 'text' so it fits in lines of no
+        more than 'width' columns, and return a list of wrapped lines.  By
+        default, tabs in 'text' are expanded with string.expandtabs(), and
+        all other whitespace characters (including newline) are converted to
+        space.  See TextWrapper class for available keyword args to customize
+        wrapping behaviour.
+
+DATA
+    __all__ = ['TextWrapper', 'wrap', 'fill', 'dedent', 'indent', 'shorten...
+
+
+Help on package string:
+
+NAME
+    string - A collection of string constants.
+
+MODULE REFERENCE
+    https://docs.python.org/3.14/library/string#module-string
+
+    The following documentation is automatically generated from the Python
+    source files.  It may be incomplete, incorrect or include features that
+    are considered implementation detail and may vary between Python
+    implementations.  When in doubt, consult the module reference at the
+    location listed above.
+
+DESCRIPTION
+    Public module variables:
+
+    whitespace -- a string containing all ASCII whitespace
+    ascii_lowercase -- a string containing all ASCII lowercase letters
+    ascii_uppercase -- a string containing all ASCII uppercase letters
+    ascii_letters -- a string containing all ASCII letters
+    digits -- a string containing all ASCII decimal digits
+    hexdigits -- a string containing all ASCII hexadecimal digits
+    octdigits -- a string containing all ASCII octal digits
+    punctuation -- a string containing all ASCII punctuation characters
+    printable -- a string containing all ASCII characters considered printable
+
+PACKAGE CONTENTS
+    templatelib
+
+CLASSES
+    builtins.object
+        Formatter
+        Template
+
+    class Formatter(builtins.object)
+     |  Methods defined here:
+     |
+     |  check_unused_args(self, used_args, args, kwargs)
+     |
+     |  convert_field(self, value, conversion)
+     |
+     |  format(self, format_string, /, *args, **kwargs)
+     |
+     |  format_field(self, value, format_spec)
+     |
+     |  get_field(self, field_name, args, kwargs)
+     |      # given a field_name, find the object it references.
+     |      #  field_name:   the field being looked up, e.g. "0.name"
+     |      #                 or "lookup[3]"
+     |      #  used_args:    a set of which args have been used
+     |      #  args, kwargs: as passed in to vformat
+     |
+     |  get_value(self, key, args, kwargs)
+     |
+     |  parse(self, format_string)
+     |      # returns an iterable that contains tuples of the form:
+     |      # (literal_text, field_name, format_spec, conversion)
+     |      # literal_text can be zero length
+     |      # field_name can be None, in which case there's no
+     |      #  object to format and output
+     |      # if field_name is not None, it is looked up, formatted
+     |      #  with format_spec and conversion and then used
+     |
+     |  vformat(self, format_string, args, kwargs)
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __dict__
+     |      dictionary for instance variables
+     |
+     |  __weakref__
+     |      list of weak references to the object
+
+    class Template(builtins.object)
+     |  Template(template)
+     |
+     |  A string class for supporting $-substitutions.
+     |
+     |  Methods defined here:
+     |
+     |  __init__(self, template)
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |
+     |  get_identifiers(self)
+     |
+     |  is_valid(self)
+     |
+     |  safe_substitute(self, mapping={}, /, **kws)
+     |
+     |  substitute(self, mapping={}, /, **kws)
+     |
+     |  ----------------------------------------------------------------------
+     |  Class methods defined here:
+     |
+     |  __init_subclass__()
+     |      This method is called when a class is subclassed.
+     |
+     |      The default implementation does nothing. It may be
+     |      overridden to extend subclasses.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __dict__
+     |      dictionary for instance variables
+     |
+     |  __weakref__
+     |      list of weak references to the object
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |
+     |  braceidpattern = None
+     |
+     |  delimiter = '$'
+     |
+     |  flags = re.IGNORECASE
+     |
+     |  idpattern = '(?a:[_a-z][_a-z0-9]*)'
+     |
+     |  pattern = re.compile('\n            \\$(?:\n              ...identifie...
+
+FUNCTIONS
+    capwords(s, sep=None)
+        capwords(s [,sep]) -> string
+
+        Split the argument into words using split, capitalize each
+        word using capitalize, and join the capitalized words using
+        join.  If the optional second argument sep is absent or None,
+        runs of whitespace characters are replaced by a single space
+        and leading and trailing whitespace are removed, otherwise
+        sep is used to split and join the words.
+
+DATA
+    __all__ = ['ascii_letters', 'ascii_lowercase', 'ascii_uppercase', 'cap...
+    ascii_letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    ascii_lowercase = 'abcdefghijklmnopqrstuvwxyz'
+    ascii_uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    digits = '0123456789'
+    hexdigits = '0123456789abcdefABCDEF'
+    octdigits = '01234567'
+    printable = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTU...
+    punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
+    whitespace = ' \t\n\r\x0b\x0c'
+
+
