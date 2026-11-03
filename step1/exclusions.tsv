@@ -1,0 +1,123 @@
+type	id	reason	detail
+A	97230	i	no-request-to-me
+A	90317	i	no-request-to-me
+A	89113	i	no-request-to-me
+A	88004	i	no-request-to-me
+A	94541	i	no-request-to-me
+A	96216	i	no-request-to-me
+A	93631	i	no-request-to-me
+A	88539	i	no-request-to-me
+A	88526	i	no-request-to-me
+A	91422	i	no-request-to-me
+A	90385	i	no-request-to-me
+A	90356	i	no-request-to-me
+A	90349	i	no-request-to-me
+A	94095	i	no-request-to-me
+A	96667	i	no-request-to-me
+A	106099	i	no-request-to-me
+A	106157	i	no-request-to-me
+A	91651	i	no-request-to-me
+A	93990	i	no-request-to-me
+A	94007	i	no-request-to-me
+A	94006	i	no-request-to-me
+A	94005	i	no-request-to-me
+A	94622	i	no-request-to-me
+A	94546	i	no-request-to-me
+A	94513	i	no-request-to-me
+A	94510	i	no-request-to-me
+A	94487	i	no-request-to-me
+A	94481	i	no-request-to-me
+A	94477	i	no-request-to-me
+A	94476	i	no-request-to-me
+A	96125	i	no-request-to-me
+A	95124	i	no-request-to-me
+A	95015	i	no-request-to-me
+A	94994	i	no-request-to-me
+A	94706	i	no-request-to-me
+A	97065	i	no-request-to-me
+A	97062	i	no-request-to-me
+A	97057	i	no-request-to-me
+A	97054	i	no-request-to-me
+A	97053	i	no-request-to-me
+A	97052	i	no-request-to-me
+A	97049	i	no-request-to-me
+A	97046	i	no-request-to-me
+A	97044	i	no-request-to-me
+A	97033	i	no-request-to-me
+A	97020	i	no-request-to-me
+A	96410	i	no-request-to-me
+A	96403	i	no-request-to-me
+A	97239	i	no-request-to-me
+A	97234	i	no-request-to-me
+A	97187	i	no-request-to-me
+A	97097	i	no-request-to-me
+A	97093	i	no-request-to-me
+A	97071	i	no-request-to-me
+A	99381	i	no-request-to-me
+A	100319	i	no-request-to-me
+A	96161	i	no-request-to-me
+A	96157	i	no-request-to-me
+A	96083	i	no-request-to-me
+A	99386	i	no-request-to-me
+A	98618	i	no-request-to-me
+A	99594	i	no-request-to-me
+A	101180	i	no-request-to-me
+A	101171	i	no-request-to-me
+A	105380	i	no-request-to-me
+A	103300	i	no-request-to-me
+A	106354	i	no-request-to-me
+A	109732	i	no-request-to-me
+A	103535	i	no-request-to-me
+A	104477	i	automated
+A	107644	i	no-request-to-me
+A	106463	i	no-request-to-me
+A	110110	i	no-request-to-me
+A	109797	i	no-request-to-me
+A	108841	i	no-request-to-me
+A	108783	i	no-request-to-me
+A	106609	i	no-request-to-me
+A	107624	i	no-request-to-me
+A	107617	i	no-request-to-me
+A	108915	i	no-request-to-me
+A	108911	i	no-request-to-me
+A	108892	i	no-request-to-me
+A	108882	i	no-request-to-me
+A	108880	i	no-request-to-me
+A	108532	i	no-request-to-me
+A	108734	i	no-request-to-me
+A	108740	i	no-request-to-me
+A	108724	i	no-request-to-me
+A	108712	i	no-request-to-me
+A	108694	i	no-request-to-me
+A	109905	i	no-request-to-me
+[private mail: redacted]	mail-msgid-2cf008ad8c83	[private mail: redacted]	[private mail: redacted]
+[private mail: redacted]	mail-msgid-0bfd1140a606	[private mail: redacted]	[private mail: redacted]
+[private mail: redacted]	mail-msgid-7a18f6a2227c	[private mail: redacted]	[private mail: redacted]
+[private mail: redacted]	mail-msgid-f9e675fea6e3	[private mail: redacted]	[private mail: redacted]
+P	187@2026-10-15T00:00Z	i	recurring slot
+P	187@2026-10-15T10:30Z	i	recurring slot
+P	187@2026-10-15T20:30Z	i	recurring slot
+P	187@2026-10-16T10:30Z	i	recurring slot
+P	187@2026-10-16T20:30Z	i	recurring slot
+P	187@2026-10-17T10:30Z	i	recurring slot
+P	187@2026-10-17T20:30Z	i	recurring slot
+P	187@2026-10-18T10:30Z	i	recurring slot
+P	187@2026-10-18T20:30Z	i	recurring slot
+P	187@2026-10-19T10:30Z	i	recurring slot
+P	187@2026-10-19T20:30Z	i	recurring slot
+P	301@2026-10-22T00:30Z	i	recurring slot
+P	359@2026-10-20T12:00Z	i	recurring slot
+P	359@2026-10-21T12:00Z	i	recurring slot
+P	359@2026-10-23T12:00Z	i	recurring slot
+P	359@2026-10-24T12:00Z	i	recurring slot
+P	359@2026-10-25T12:00Z	i	recurring slot
+P	359@2026-10-26T12:00Z	i	recurring slot
+P	359@2026-10-28T12:00Z	i	recurring slot
+P	359@2026-10-29T12:00Z	i	recurring slot
+P	359@2026-10-30T23:59Z	i	recurring slot
+P	359@2026-10-31T12:00Z	i	recurring slot
+P	361@2026-10-26T12:00Z	i	recurring slot
+P	361@2026-10-28T12:00Z	i	recurring slot
+P	361@2026-10-29T12:00Z	i	recurring slot
+P	361@2026-10-30T23:59Z	i	recurring slot
+P	361@2026-10-31T12:00Z	i	recurring slot

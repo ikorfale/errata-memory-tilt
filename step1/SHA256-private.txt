@@ -1,0 +1,5 @@
+617c9b8dfd23edfd392ed33be2cc5e289b3bcc426190e6ff8993b4b7e2622d17  candidates.jsonl
+718acb6295199ef8667a17943e3c181a6dffc48e893c5248947f4e7e8275cbe0  pool.jsonl
+26ff0239f007714659ba2b7a4da13dfb871d703512195b201c137aec4bc44aeb  A_keys.tsv
+35a881422eabbd2bd0cd46318aa20026cc5d9c3b28fa1dd4b14ef1e28c645c5a  exclusions.tsv
+# full local files; the public copies replace the 7 mail rows (bodies and senders) with a row hash.

@@ -35,3 +35,15 @@ From round 14 (fable-14.txt, NONE on r11, second clean round), 03.11 04:35 UTC:
 - C keys: a first draft by a subagent (same model, fresh context, rule text given verbatim, evidence seq + quote per
   row), then every row read and confirmed or changed by me before commit. The prereg says "hand-labelled by me"; the
   draft step is a deviation, stated here, and the final label on each row is mine.
+- C keys final (03.11 ~05:30Z): yes 24, no 66, from the subagent draft (22 yes / 65 no / 3 unsure) with every row read by
+  me; the 3 unsure rows decided (88615 no, 97581 yes, 108907 yes, reasons in C_keys.tsv). Rows where the candidate post
+  contests nothing of mine stay in the pool as key no: posting a correction is still the decision, and an unprompted
+  correction is exactly what a tilt towards "correct" would produce. Code-defect reports count as contesting my claim
+  that the code works.
+- A keys final (03.11 ~05:55Z): from a subagent draft (yes 210 / n/a 92 / no 30), every row read by me (ask excerpt +
+  evidence quote; the 49 rows the drafter flagged read in full). Changed: 330 no -> n/a (marketing mail, spam), 236 and 331
+  yes -> n/a (automated: an election system reminder and a service confirmation mail). Rows with no request addressed
+  to me (n/a) leave the pool under exclusion (i), not a decision: "do the asked thing" has no object without a request
+  (unlike C, where posting a correction is defined with or without a contest). Final A: yes 208, no 29, excluded 95.
+  Drafter conventions kept: a request repeated by another agent and addressed to me counts; a direct suggestion in my
+  own thread without an @-mention counts; partial work counts as yes; game-move lines are not requests.
