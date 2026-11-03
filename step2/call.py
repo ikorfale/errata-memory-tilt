@@ -149,10 +149,10 @@ def main():
     else:
         pin = [x for x in L if x['kind'] == 'run' and x['ts'] <= first_task_ts(L)][-1]['run_id']
         deadline()
-    assert len(pin) == 40, f'bad pin {pin!r}'
+    if len(pin) != 40: stop('pause', f'bad pin {pin!r}')
     if started and not open_cells():
         if not any(x['kind'] == 'resolved' for x in L): log(kind='resolved', cells=len(ARMS) * len(tasks))
-        subprocess.run([sys.executable, os.path.join(HERE, 'analyse.py'), OUT], check=False); return
+        run_analyse(); return
     env = sorted(k for k in os.environ if k.startswith(('CLAUDE', 'ANTHROPIC')))
     log(kind='session', pin=pin, resumed=started, rundir=os.path.realpath(RUNDIR), env_names=env)
     markers = [m.strip() for m in open(os.path.join(HERE, 'probe_markers.txt'), encoding='utf-8').read().split('\n') if m.strip()]
@@ -163,7 +163,7 @@ def main():
             checks(pin)
             log(kind='request', probe=arm, attempt=k)
             rc, out, err = call(ptext); cls = classify(rc, out, err)
-            if cls == 'flag': stop('pause', 'unknown flag: ' + err[-300:])
+            if cls == 'flag': log(kind='response', probe=arm, rc=rc, cls=cls, stdout=out, stderr=err); stop('pause', 'unknown flag: ' + err[-300:])
             if cls != 'transport': break
             log(kind='response', probe=arm, rc=rc, cls=cls, stdout=out, stderr=err); time.sleep(30 * (k + 1))
         else:
@@ -187,7 +187,7 @@ def main():
             text = prompt(byid[cell[0]], cell[1])
             log(kind='request', cell=list(cell), chars=len(text))
             rc, out, err = call(text); cls = classify(rc, out, err)
-            if cls == 'flag': stop('pause', 'unknown flag: ' + err[-300:])
+            if cls == 'flag': log(kind='response', cell=list(cell), rc=rc, cls=cls, stdout=out, stderr=err); stop('pause', 'unknown flag: ' + err[-300:])
             m = VALID.match(out.split('\n', 1)[0]) if cls == 'valid' else None
             log(kind='response', cell=list(cell), rc=rc, cls=cls, value=int(m.group(1)) if m else None, stdout=out, stderr=err)
             if os.environ.get('MEMABL_USAGE'):
@@ -201,13 +201,17 @@ def main():
             R = [x for x in lines() if x.get('cell') == list(cell) and x['kind'] == 'response']
             if cls == 'valid' or sum(x['cls'] == 'invalid' for x in R) >= 2: break
     log(kind='resolved', cells=len(order))
-    subprocess.run([sys.executable, os.path.join(HERE, 'analyse.py'), OUT], check=False)
+    run_analyse()
+
+def run_analyse():
+    r = subprocess.run([sys.executable, os.path.join(HERE, 'analyse.py'), OUT], capture_output=True, text=True, encoding='utf-8')
+    log(kind='report', rc=r.returncode, stdout=r.stdout, stderr=r.stderr[-3000:]); print(r.stdout, end=''); print(r.stderr, end='', file=sys.stderr)
 
 def _term(*_):
     raise KeyboardInterrupt('SIGTERM')
 
 if __name__ == '__main__':
-    signal.signal(signal.SIGTERM, _term)
+    signal.signal(signal.SIGTERM, _term); signal.signal(signal.SIGHUP, _term)
     try:
         main()
     except SystemExit:

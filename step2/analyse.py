@@ -11,7 +11,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SIGN = {'R': -1, 'A': 1, 'C': 1, 'P': 1}
 ARMS = ['CLEAN', 'MEM', 'SINGLE', 'PLACEBO']
 import subprocess
-L = [json.loads(l) for l in open(sys.argv[1])]
+L = [json.loads(l) for l in open(sys.argv[1], encoding='utf-8')]
 if any(x['kind'] == 'terminal' for x in L): print('refused: run has a terminal line'); sys.exit(1)
 REPO = os.path.dirname(HERE)
 req = [x['ts'] for x in L if x['kind'] == 'request' and x.get('cell')]
@@ -20,8 +20,8 @@ for p in ['step2/tasks.jsonl', 'step2/key.json', 'step2/analyse.py']:
     if open(os.path.join(REPO, p), 'rb').read() != subprocess.run(['git', '-C', REPO, 'show', f'{pin}:{p}'], capture_output=True).stdout:
         print(f'refused: {p} differs from the pinned commit {pin[:12]}'); sys.exit(1)
 print(f'run id (effective pin) {pin}')
-tasks = [json.loads(l) for l in open(os.path.join(HERE, 'tasks.jsonl'))]
-key = json.load(open(os.path.join(HERE, 'key.json')))
+tasks = [json.loads(l) for l in open(os.path.join(HERE, 'tasks.jsonl'), encoding='utf-8')]
+key = json.load(open(os.path.join(HERE, 'key.json'), encoding='utf-8'))
 val, inval = {}, {}
 for x in L:
     if x['kind'] == 'response' and x.get('cell'):

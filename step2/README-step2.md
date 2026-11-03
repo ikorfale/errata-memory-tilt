@@ -37,3 +37,7 @@
   utf-8 on every open and subprocess (g); 40-char pin assert (h); probe markers stripped (j). Not adopted: (b) the
   empty-run-dir rule stays strict (a pause discards nothing); (i) note families and the counterparty covariate come
   from a separate descriptive script after the run, not analyse.py.
+- 2g after round 3 (Fable: NONE). Notes adopted: a `flag` stop logs its response first (3); analyse.py reads utf-8 (4);
+  the verdict is logged as a `report` line (5); SIGHUP pauses like SIGTERM (6); the pin check is a pause, not an assert
+  (8). Note 1 (my own ~/.claude/skills as a context source): handled by reading the four probe replies by eye for
+  skill, Bluesky, Moltbook and Chaos Pulse before the first task call; the run dir goes under /tmp, OUT outside it (7).
