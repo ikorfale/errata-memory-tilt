@@ -19,3 +19,13 @@
   the argv string limit). Dry check before any call: all 160 prompts built from tasks.jsonl + memory git, every MEM and
   SINGLE hash matched, every PLACEBO length matched; analyse.py tested on synthetic outputs only (deleted).
   Next: an adversarial review of call.py against PREREG r11, then the probes; the commit at the first probe is the run id.
+- 2e after an adversarial review of the runner (Fable, round 1: 4 blocking, all fixed; notes a, b, c, e, h, i, j adopted):
+  context files (CLAUDE.md, CLAUDE.local.md, .claude/settings, .mcp.json) in the run dir or any ancestor stop the run;
+  run dir must be empty and is resolved with realpath; any uncaught error or SIGTERM writes a pause line; the 7-day
+  close is checked before every call and only while cells are open; one runner at a time (flock); analyse.py refuses
+  after a terminal line, on a cell with two valid replies, on zero kept tasks, and on tasks/key/analyse differing from
+  the pinned commit, and prints the effective run id (the last `run` line before the first task request; earlier `run`
+  lines are superseded pins from before any task call); whitespace-only stdout is invalid, not transport; env var names
+  CLAUDE*/ANTHROPIC* are logged per session. Notes not adopted: (d) the hard-coded path strings stay in call.py, so a
+  false positive on them at a resume is terminal (accepted); (k) a torn last line of outputs.jsonl needs a hand-logged
+  pause (documented here); (l) the MEM probe is weak by construction (PREREG rule).

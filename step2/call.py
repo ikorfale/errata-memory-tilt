@@ -13,8 +13,11 @@ MEMABL_USAGE (optional) = a usage log that gets one line per task call. Usage: p
   first line) -> re-issued, never parsed; valid (first line ^\\s*(\\d{1,3})\\s*%?\\s*$ and <= 100); invalid -> one retry,
   a second invalid ends the cell as failed (its task is dropped from every analysis, all cells are still called).
 - 8 transport replies in a row, an unknown-flag error, or any check failure -> a 'pause' line and exit (resume later).
-- 7 days after the first task request: terminal 'unfinished'. When every task is resolved: runs analyse.py."""
-import datetime as dt, hashlib, json, os, random, re, subprocess, sys, time
+- 7 days after the first task request, with cells still open: terminal 'unfinished' (checked before every call).
+  When every task is resolved: runs analyse.py. One runner at a time (flock on OUT.lock); any uncaught error or
+  SIGTERM writes a 'pause' line. The run dir and its ancestors must hold no CLAUDE.md/settings/.mcp.json.
+  Launch from systemd-run (not from inside a Claude Code session); env var names CLAUDE*/ANTHROPIC* are logged."""
+import datetime as dt, fcntl, hashlib, json, os, random, re, signal, subprocess, sys, time, traceback
 HERE = os.path.dirname(os.path.abspath(__file__)); REPO = os.path.dirname(HERE)
 MEMREPO, OUT, RUNDIR = os.environ['MEMABL_MEMREPO'], os.environ['MEMABL_OUT'], os.environ['MEMABL_RUNDIR']
 PINNED = ['step2/call.py', 'step2/tasks.jsonl', 'step2/system_prompt.txt', 'step2/templates/R.txt', 'step2/templates/A.txt',
@@ -49,11 +52,40 @@ def checks(pin):
     for p in PINNED:
         if open(os.path.join(REPO, p), 'rb').read() != git(REPO, 'show', f'{pin}:{p}'):
             stop('pause', f'{p} differs from its blob in pinned commit {pin[:12]}')
-    pm = os.path.expanduser('~/.claude/projects/' + re.sub(r'[^A-Za-z0-9]', '-', RUNDIR) + '/memory')
+    d = os.path.realpath(RUNDIR); os.makedirs(d, exist_ok=True)
+    if os.listdir(d): stop('pause', 'run dir is not empty')
+    p = d
+    while True:
+        for n in ['CLAUDE.md', 'CLAUDE.local.md', '.claude/CLAUDE.md', '.claude/rules', '.claude/settings.json',
+                  '.claude/settings.local.json', '.mcp.json']:
+            if os.path.exists(os.path.join(p, n)): stop('pause', f'context file {n} in run dir ancestry')
+        if p == os.path.dirname(p): break
+        p = os.path.dirname(p)
+    for n in ['~/.claude/CLAUDE.local.md', '~/.claude/rules']:
+        if os.path.exists(os.path.expanduser(n)): stop('pause', f'{n} exists')
+    deadline()
+    pm = os.path.expanduser('~/.claude/projects/' + re.sub(r'[^A-Za-z0-9]', '-', d) + '/memory')
     if os.path.isdir(pm) and os.listdir(pm): stop('pause', 'project memory folder of the run dir is not empty')
     if os.path.exists(os.path.expanduser('~/.claude/CLAUDE.md')): stop('pause', '~/.claude/CLAUDE.md exists')
     v = subprocess.run(['claude', '--version'], capture_output=True, text=True).stdout
     if v != open(os.path.join(HERE, 'claude_version.txt')).read(): stop('pause', f'claude --version changed: {v.strip()}')
+
+def first_task_ts(L):
+    ts = [y['ts'] for y in L if y['kind'] == 'request' and y.get('cell')]
+    return min(ts) if ts else None
+
+def deadline():
+    t0 = first_task_ts(lines())
+    if t0 and dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(t0) > dt.timedelta(days=7) and open_cells():
+        stop('terminal', 'unfinished: 7 days after the first task call')
+
+def open_cells():
+    tasks = [json.loads(l) for l in open(os.path.join(HERE, 'tasks.jsonl'))]
+    R = {}
+    for x in lines():
+        if x['kind'] == 'response' and x.get('cell'): R.setdefault(tuple(x['cell']), []).append(x['cls'])
+    return [(t['task'], a) for t in tasks for a in ARMS
+            if 'valid' not in R.get((t['task'], a), []) and R.get((t['task'], a), []).count('invalid') < 2]
 
 def fill(tpl, vals):
     return re.sub(r'\{(date|situation|arm_block)\}', lambda m: vals[m.group(1)], tpl)
@@ -89,7 +121,7 @@ def classify(rc, out, err):
     if re.search(r'unknown option|unknown argument|error: option', err, re.I): return 'flag'
     api = re.compile(open(os.path.join(HERE, 'api_errors.txt')).read().strip())
     first = out.split('\n', 1)[0] if out else ''
-    if rc != 0 or not out.strip() or api.search(first): return 'transport'
+    if rc != 0 or not out or api.search(first): return 'transport'
     m = VALID.match(first)
     return 'valid' if m and int(m.group(1)) <= 100 else 'invalid'
 
@@ -98,6 +130,10 @@ def probe_fails(ptext, reply, markers, memfiles):
     return hits
 
 def main():
+    global lockf
+    lockf = open(OUT + '.lock', 'w')
+    try: fcntl.flock(lockf, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError: print('another call.py holds this run'); sys.exit(3)
     tasks = [json.loads(l) for l in open(os.path.join(HERE, 'tasks.jsonl'))]
     L = lines()
     if any(x['kind'] == 'terminal' for x in L): print('run is closed (terminal line)'); sys.exit(3)
@@ -108,10 +144,10 @@ def main():
         if not runs or runs[-1]['run_id'] != pin:
             log(kind='run', run_id=pin, claude_version=open(os.path.join(HERE, 'claude_version.txt')).read().strip())
     else:
-        pin = [x for x in L if x['kind'] == 'run' and x['ts'] <= min(y['ts'] for y in L if y['kind'] == 'request' and y.get('cell'))][-1]['run_id']
-        t0 = dt.datetime.fromisoformat(min(y['ts'] for y in L if y['kind'] == 'request' and y.get('cell')))
-        if dt.datetime.now(dt.timezone.utc) - t0 > dt.timedelta(days=7): stop('terminal', 'unfinished: 7 days after the first task call')
-    log(kind='session', pin=pin, resumed=started)
+        pin = [x for x in L if x['kind'] == 'run' and x['ts'] <= first_task_ts(L)][-1]['run_id']
+        deadline()
+    env = sorted(k for k in os.environ if k.startswith(('CLAUDE', 'ANTHROPIC')))
+    log(kind='session', pin=pin, resumed=started, rundir=os.path.realpath(RUNDIR), env_names=env)
     markers = [m for m in open(os.path.join(HERE, 'probe_markers.txt')).read().split('\n') if m.strip()]
     memfiles = sorted({n for t in tasks for n in t['mem_files']})
     for arm in ARMS:                                   # probes, one per arm shape, on the first task's blocks
@@ -159,5 +195,14 @@ def main():
     log(kind='resolved', cells=len(order))
     subprocess.run([sys.executable, os.path.join(HERE, 'analyse.py'), OUT], check=False)
 
+def _term(*_):
+    raise KeyboardInterrupt('SIGTERM')
+
 if __name__ == '__main__':
-    main()
+    signal.signal(signal.SIGTERM, _term)
+    try:
+        main()
+    except SystemExit:
+        raise
+    except BaseException as e:
+        log(kind='pause', why=f'uncaught {type(e).__name__}: {e}', trace=traceback.format_exc()[-3000:]); sys.exit(2)

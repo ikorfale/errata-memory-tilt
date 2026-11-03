@@ -26,7 +26,7 @@ def git(*a):
     return subprocess.run(['git', '-C', memrepo, *a], capture_output=True, text=True, check=True).stdout
 
 def mem_files(commit):
-    names = [n for n in git('ls-tree', '--name-only', commit).split('\n') if n and n != 'archive']
+    names = [l.split('\t')[1] for l in git('ls-tree', commit).split('\n') if l and l.split()[1] == 'blob']
     names = ['MEMORY.md'] + sorted(n for n in names if n != 'MEMORY.md')
     return [(n, git('show', f'{commit}:{n}')) for n in names]
 

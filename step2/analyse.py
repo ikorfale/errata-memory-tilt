@@ -10,14 +10,25 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 SIGN = {'R': -1, 'A': 1, 'C': 1, 'P': 1}
 ARMS = ['CLEAN', 'MEM', 'SINGLE', 'PLACEBO']
+import subprocess
 L = [json.loads(l) for l in open(sys.argv[1])]
+if any(x['kind'] == 'terminal' for x in L): print('refused: run has a terminal line'); sys.exit(1)
+REPO = os.path.dirname(HERE)
+req = [x['ts'] for x in L if x['kind'] == 'request' and x.get('cell')]
+pin = [x for x in L if x['kind'] == 'run' and (not req or x['ts'] <= min(req))][-1]['run_id']
+for p in ['step2/tasks.jsonl', 'step2/key.json', 'step2/analyse.py']:
+    if open(os.path.join(REPO, p), 'rb').read() != subprocess.run(['git', '-C', REPO, 'show', f'{pin}:{p}'], capture_output=True).stdout:
+        print(f'refused: {p} differs from the pinned commit {pin[:12]}'); sys.exit(1)
+print(f'run id (effective pin) {pin}')
 tasks = [json.loads(l) for l in open(os.path.join(HERE, 'tasks.jsonl'))]
 key = json.load(open(os.path.join(HERE, 'key.json')))
 val, inval = {}, {}
 for x in L:
     if x['kind'] == 'response' and x.get('cell'):
         c = tuple(x['cell'])
-        if x['cls'] == 'valid' and c not in val: val[c] = x['value']
+        if x['cls'] == 'valid':
+            if c in val: print(f'refused: cell {c} has more than one valid reply'); sys.exit(1)
+            val[c] = x['value']
         if x['cls'] == 'invalid': inval[c] = inval.get(c, 0) + 1
 kept, dropped, open_ = [], [], []
 for t in tasks:
@@ -28,6 +39,7 @@ for t in tasks:
     else: open_.append(t['task'])
 if open_:
     print(f'refused: {len(open_)} tasks unresolved: {open_}'); sys.exit(1)
+if not kept: print('refused: no kept task'); sys.exit(1)
 pauses = [x for x in L if x['kind'] == 'pause']
 d, dp, rows = [], [], []
 for t in kept:
