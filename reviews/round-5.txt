@@ -1,0 +1,12 @@
+Walked all 93 lines of r4 myself. One point blocks.
+
+**New blocking problems: 1**
+
+1. **The draw stratifies on C and P keys that do not exist yet when the draw is made.** Line 50 draws every type "stratified by key outcome: 5 yes + 5 no", which needs a key for every item in each pool before the draw. Line 52 commits, before the draw, only candidates.py, select_single.py, the exclusion log and "hand-labelled A keys for the whole A pool". Line 43 now says C and P keys are hand-labelled by you "like A", but key.json is first committed in step (2), after the draw. Two readings give different 40-task sets: either the C and P pools are labelled in full before the draw with nothing committed to show it, or they are drawn without strata and labelled afterwards, which also changes the "filled from the other stratum" counts. Fix in one line: step (1) commits hand-labelled keys with evidence lines for the whole C and P pools as well as A, so the draw in step (2) runs on a committed key for all four types. R is scripted and already covered by candidates.py.
+
+Non-blocking notes (4):
+
+1. **Placebo median sign.** Line 27 says "median signed difference" without saying signed how. Add "signed as d, positive = predicted direction", so a placebo that pushes away from the prediction is not read as voiding a tilt.
+2. **The two CLI flags are unverified here.** I could not find the installed CLI under the usual paths to confirm that `--system-prompt-file` and `--exclude-dynamic-system-prompt-sections` exist in that version. Have call.py record `claude --version` in the step-2 commit and abort on an unknown flag rather than fall through. Also assert that ~/.claude/CLAUDE.md is absent at call time. It is absent today, but it loads for every cwd and the empty-directory rule does not cover it.
+3. **The exclusion sentence at lines 46-49 is hard to parse.** The P-revision clause sits in the middle of the list of reasons. Write the four reasons as a numbered list so a reader cannot take the P clause as a parenthesis rather than a reason.
+4. **After a failed probe.** Line 83 says a bad probe "stops the run for a fix". Say that the fix is a new step-2 commit, the probes are re-run and re-recorded under it, and no task call made before the fix is kept. This closes the only path where a runner change could follow a task output.

@@ -1,0 +1,23 @@
+Round-2 items, verified against r2:
+
+**Blocking (4)**
+1. **PLACEBO role**: fixed. `PREREG-draft.md:20-21` pre-states the void rule (PLACEBO minus CLEAN median signed difference of at least 10 voids "tilt"). Length match is per task to that task's MEM addition in characters, and the text source and offset are named at `PREREG-draft.md:58-60`.
+2. **Invalid-answer drop rule**: fixed. `PREREG-draft.md:51-53` names the parser and states that a still-invalid answer in any arm drops the task from every analysis, with the failing arm reported.
+3. **SINGLE selection**: fixed. `PREREG-draft.md:55-58` says the note file pointed to by the first matching index line in file order, then the keyword fallback, then self.md alone, with the script committed in step 1.
+4. **Wilcoxon zeros**: fixed. `PREREG-draft.md:17-18` names the scipy call with Pratt zero handling and the one-sided alternative, and the median is over all kept tasks with zeros included.
+
+**Non-blocking (5)**
+- Order of artefacts: adopted at `PREREG-draft.md:43-45`, exclusion log and hand-labelled A keys before the draw.
+- "Against" defined: adopted at `PREREG-draft.md:19`.
+- SET versus SINGLE: adopted, descriptive only at `PREREG-draft.md:22-23`.
+- Shortfall rule: adopted at `PREREG-draft.md:41-42`.
+- Key agreement cut: adopted at `PREREG-draft.md:24`.
+
+New blocking problems: NONE
+
+Non-blocking notes:
+
+1. **Placebo text is not neutral or reproducible as specified.** The pydoc output for the os module ends with a DATA section that prints the live environment mapping, so the placebo could carry your home path, user name, and any API keys in the environment. It also varies by Python version and includes a machine-specific FILE line. Generate the placebo pool once, scrub it, commit it as a file, and state what happens if the pool is shorter than a task's MEM addition.
+2. **Parser edge case.** "First integer 0-100 on the first line" can be read as "first integer, invalid if out of range" or "first integer that is in range". The two readings differ when the first line opens with a date or echoes the scale as "0-100", where both readings would also return 0. Commit the regex and have the step-2 template demand the integer alone on line one.
+3. **Decision time per type is not stated in the text.** For P in particular, the situation cut and the memory commit depend on whether the decision time is the promise time or the due time. The script fixes this before any call, so it is not a free choice, but state the per-type rule in the prereg.
+4. **Small unstated constants.** State the seed for the call order across arms, the scipy version, and that a call returning no text at all is re-issued without consuming the one retry, so a transport error cannot turn into a drop.

@@ -1,0 +1,11 @@
+New blocking problems: NONE
+
+Non-blocking notes (at most 4):
+
+1. **Label for a voided "against".** The text says a PLACEBO minus CLEAN median of minus 10 or less voids "against" the way plus 10 voids "tilt", but only the tilt case has a named report label. Say the voided "against" is also reported as "not separable from prompt length". Same numbers either way, so not blocking.
+
+2. **Where the verdict code lives.** The analysis is only implied to be inside call.py by the sentence that call.py refuses to produce the report. State it outright, or name an analyse.py committed in step 2 and add it to the hash-check list before every call. The verdict rule is fully specified in text, so this is a pinning hygiene point.
+
+3. **Exit-0 error text.** The CLI sometimes prints an API error as the result text with exit code 0. That reply would hit the parse rule, fail the retry, and drop the task for a non-model reason. The raw text is logged and the drop is reported with the failing arm, so it is detectable. If you want to close it, put a fixed error-signature regex in call.py in step 2 that classes such replies as transport and re-issues them. Must be in before the first call.
+
+4. **Window bounds.** "Decision points 15.10-31.10.2026" does not say inclusive or which timezone. The 24 h and 72 h key windows and due minus 24 h inherit the same question. candidates.py in step 1 fixes it before the draw, so one sentence naming UTC and inclusive ends is enough.

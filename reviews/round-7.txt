@@ -1,0 +1,12 @@
+I walked the full r5 text and the four binding clarifications against the three blocking criteria.
+
+**New blocking problems: 1**
+
+**Unlogged reruns.** The text says a probe failure means "no task call made before the fix is kept", and clarification 3 widens this to any change to call.py after the first task call discarding every task output. Nothing requires discarded outputs to be kept or reported, and nothing limits what counts as a reason to change call.py. That leaves a path to see the pooled result, change the runner, and re-sample all 160 calls under fresh model randomness, as often as wanted, invisibly. With 40 tasks and default sampling, a marginal verdict can flip between reruns. This is "choose after seeing outcomes". Fix in one sentence: every task output ever produced, including from discarded runs, goes into an append-only log committed with the results, and the report states the number of runs started and the reason each was discarded, with the reason committed before the rerun begins.
+
+Non-blocking notes (at most 4):
+
+1. **SINGLE for type P.** "Counterparty handle" is defined for R, A, C but not for plan tasks or promises. select_single.py must fix what it is for P (for example the promisee handle, else straight to the keyword path) since it is committed in step 1 anyway.
+2. **P promises already fulfilled before due minus 24 h.** They stay in the pool and their key is "no" by construction. Not a primary-result problem, but report their count, or add them to exclusion reason (i) as "not a decision".
+3. **Draw clause.** "At least 2 of each where the pool has them" is redundant with taking the whole short stratum. draw.py should implement take-all-of-short-stratum and the clause should not introduce a second rule.
+4. **All-zero d edge.** scipy's Wilcoxon errors or warns when every d is zero. The analysis script should map that case to "no tilt" explicitly rather than crash or return NaN.

@@ -1,0 +1,19 @@
+Both files read. Walked r7 start to finish, plus the eight clarifications, against the three blocking criteria.
+
+**New blocking problems: 2**
+
+**1. The discard rule is closed, but the rerun rule is still open, and clarification 3 contradicts it.** (`PREREG-draft.md:92-99`, `CLARIFICATIONS.md:5-7`)
+- Line 94 says only the last run started is analysed. Line 97 says a clean run cannot be discarded. Nothing says a rerun may start only after a discard. So I can finish a clean run, commit any one-line reason in RUNS.md, start run 2, and run 1 is neither discarded nor analysed. Its median and p are never printed, because line 99 prints stats only for discarded runs. That is choosing after seeing outcomes.
+- Same door for an interrupted run. Killing call.py mid-run writes no error-log entry, so the partial run "cannot be discarded", yet the next run started is the one analysed.
+- Clarification 3 says any change to call.py after the first task call discards every output so far. A call.py change writes nothing to the error log, so under the r7 "if and only if" that run cannot be discarded. Two readings, different results.
+- Fix in one rule: a run is identified by an id call.py writes at start; a new run may start only if the previous run's id has an error-log entry (per-run log, not global); a call.py change after the first task call is itself an error-log entry; the report prints median and p of every run started, not only discarded ones.
+
+**2. "Probe failure" is an error-log entry, but the verdict is a human judgement with no time lock.** (`PREREG-draft.md:87-89, 95-96`)
+- Line 95 says call.py writes "a probe failure" to the error log, yet the criterion on line 88 ("shows file access or prior knowledge of my notes") is not a test call.py can apply. If I supply the verdict, I can supply it after the task outcomes, and the whole run is then discarded by the "mandatory" rule.
+- Fix: either a fixed mechanical test in call.py (fails iff the probe reply contains a path separator, a memory file name, or a string from a committed list), or the pass verdict for each probe is committed alongside the probe output before the first task call and is final.
+
+Non-blocking notes:
+- Line 56 still carries "(at least 2 of each where the pool has them)". Clarification 7 says no second rule. Delete the phrase so the text has one draw rule.
+- Line 100 says 160 calls. Parse retries and transport re-issues are extra calls. Say "160 task-arm cells; every call made is logged".
+- Line 66 "raw text": state the output format flag used, so "first line" is defined by the CLI's text output and not by a JSON wrapper.
+- Lines 29 and 31: say both the one-sided and the two-sided Pratt p are reported, so a reader can check "tilt" and "against" from the same table.

@@ -1,0 +1,27 @@
+Blocking problems from round 1 are all fixed except for loose ends that are non-blocking. r1 introduces four new blocking items, three of them one-line fixes.
+
+**Round-1 items, status**
+
+1. Pre-declared finding either way: fixed. Directions per type, null region, and tilt rule at `PREREG-draft.md:10-18` are exhaustive and exclusive.
+2. Key produced under treatment: fixed. Primary is MEM minus CLEAN; key agreement is secondary and labelled as a check.
+3. Batching: fixed. One task per call, own commit, seeded order across arms.
+4. Framing: fixed. "Decide as this agent" stated, same closing question in all arms.
+5. Open degrees of freedom: fixed in substance. Regex rules, fixed family list, invalid-answer rule, sampling stated, base rate handled by stratification. Remaining gaps are in the notes below.
+
+**New blocking problems**
+
+1. **PLACEBO has no role in any decision rule** (`PREREG-draft.md:49-50`). It is defined but appears in neither primary nor secondary. If PLACEBO minus CLEAN shows the same shift as MEM minus CLEAN, nothing says what happens, so after seeing outcomes you can choose to report MEM versus CLEAN or MEM versus PLACEBO as "the" contrast. Fix: keep the primary as MEM minus CLEAN and pre-state that a PLACEBO minus CLEAN median of at least 10 in the predicted direction voids the tilt claim, or make the primary MEM minus PLACEBO. Also say what is length-matched (per task, to that task's MEM prompt) and name the exact stdlib text and offset.
+
+2. **Invalid-answer drop rule is written for two arms but there are four** (`PREREG-draft.md:44-45`). "Dropped in both arms" has two readings: drop the task from every analysis if any arm fails, or drop it only from comparisons that use the failed arm. A SINGLE or PLACEBO failure then changes the primary n under one reading and not the other. Pick one. Also define the parser: an answer with two or more numbers is neither "no number" nor valid under the current text. Say "first integer 0-100 on the first line, else invalid".
+
+3. **SINGLE note selection is ambiguous** (`PREREG-draft.md:47-49`). "The index line mentioning the counterparty handle" assumes one match; "first" is stated only for the keyword fallback. And it is unclear whether the arm gets the index line itself or the note file it points to. Two readings give different SINGLE content and so a different secondary result. Fix: "the note file pointed to by the first index line, in file order, that ...", and commit the selection script with candidates.py.
+
+4. **Wilcoxon zero handling unstated** (`PREREG-draft.md:16`). With round-number answers, d = 0 ties will occur. Dropping zeros versus Pratt's method gives different p-values, and the choice can be made after seeing the data. State the implementation and zero method, and state that the median of signed d is over all tasks including zeros.
+
+**Non-blocking notes**
+
+- **Order of artefacts.** The draw is stratified by key, so the exclusion log and the hand-labelled A keys for the whole A pool must be committed before the draw, not just before the first call. Then commit draw, key.json, and the four per-type prompt templates naming action X before the first call.
+- **"Significant shift against"** is undefined under a one-sided test. Define it (two-sided p under 0.05 and median at or below minus 10) or drop the label and call it "no tilt".
+- **SET versus SINGLE secondary** has no criterion and no direction. "SET differs by at least 10" in either direction? State a count threshold or label it descriptive only, since it answers the original question.
+- **Shortfall rule.** Say explicitly that a stratum short of 5 is filled from the other stratum to keep 10 per type.
+- **Agreement with the key** is undefined for a 0-100 answer. State the cut (above 50 = action).

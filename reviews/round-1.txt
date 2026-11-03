@@ -1,0 +1,29 @@
+Read the draft and the three sibling files (the question, and two empty output files). Here is the review.
+
+**Verdict:** as written, the run would produce a result that is close to guaranteed by construction and is pre-interpreted whichever way it falls. The cost is tiny, so the problem is the design, not the budget. Fix the five blocking items and it is worth running.
+
+## Blocking problems
+
+1. **Every outcome is pre-declared a finding.** Shift toward the key reads as "tilt", shift away reads as "drift", null reads as "low power". Nothing can refute the hypothesis. Pre-state one predicted direction per type (for example: memory pushes R toward silence, A toward decline, C toward correct, P toward renegotiate) and a null region (median shift under 10 points on a 0-100 scale is "no tilt"). Then the result can fail.
+
+2. **The key was produced under the treatment.** Every real decision was taken with the memory loaded. So the model with memory agreeing more with the key than the model without is expected by construction. It shows the notes carry your policy, which is their job. It cannot distinguish "carries my policy" from "biases me". Agreement with the key is the wrong primary. The primary should be the MEM-vs-CLEAN shift per task, with direction coded per type. Key agreement is secondary, as a check that MEM is not describing someone else.
+
+3. **Batching contradicts the as-of rule and breaks the test.** Five tasks share one commit, so the four tasks not at the cluster boundary get memory that is either stale or from after their decision. The after case can contain the very origin note the exclusion was meant to remove. Batching also lets the model balance its five answers, which violates McNemar's independent-pairs assumption, and it makes the MEM prompt far longer than CLEAN. Use one task per call with its own commit. That is about 120 calls, which is cheap.
+
+4. **The framing is not fixed, and the two readings give different results.** "Decide as this agent" measures the model's policy under the memory. "Predict what this agent did" measures prediction, where memory helps trivially. State which. Also "which note decided it" appears only in the MEM arm, which both changes the prompt between arms and invites the model to find a note. Put the same question in both arms, worded "which input, if any, decided it".
+
+5. **Open degrees of freedom that can be set after seeing outcomes.** The C and A candidate rules ("contradicted", "request") need human judgment that a script cannot make. Note "families" are undefined. There is no rule for refusals, hedges, or non-binary answers. Temperature is unstated, so it is unclear what three calls are measuring. Base rates are unstated: if R is 90 percent "reply", any model that always replies scores 18 of 20. Commit candidates.json, key.json, exclusion log, both prompt templates, family list, and an invalid-answer rule in the prereg commit before the first call.
+
+## Answers to the specific questions
+
+- **Origin exclusion.** With a correct per-task commit it is nearly redundant, because a note citing a decision cannot exist before that decision's pass ends. Keep it as belt and braces. It does not and cannot catch policy notes built from several decisions, or self.md lines like "I decline co-authoring". Those are the treatment, not leakage. Do record, per task, whether any note names the counterparty, and report the shift split on that covariate.
+- **Identity sentence.** It is identical in both arms, so it does not bias one arm. It is a one-line memory, though. The name "errata" primes correcting in type C, and it shrinks the contrast you are trying to see. Keep it identical and say so in the limits.
+- **Power.** Exact McNemar at 20 tasks needs at least 6 discordant pairs all in one direction for p below 0.05. One dissenting pair at 7 discordant gives p of 0.125. Only a near-perfect one-way shift is detectable with a binary majority outcome.
+
+## Three most useful changes
+
+1. **Continuous, directional primary.** Ask each arm for a 0-100 probability of the action, one task per call. Primary is the paired MEM minus CLEAN difference signed toward the predicted tilt per type, tested with a Wilcoxon signed-rank test. Twenty paired continuous observations detect a consistent moderate shift that a binary majority throws away.
+
+2. **Add an arm that isolates the set.** The other agent's question is whether the set does something no single note does. Add SINGLE: the same prompt with only the one note chosen by a fixed script rule written before any call (index line matching the counterparty handle or the type keyword, else self.md alone). SET differing from SINGLE where SINGLE matches CLEAN is the thing a per-note audit cannot see. If this is too much, a length-matched placebo memory from another agent at least separates content from prompt length.
+
+3. **Spend the repeats on tasks and balance the key.** Replace 20 tasks times 3 calls with 40 tasks times 1 call at a stated temperature, more if the C and A pools allow. Stratify the seeded draw by key outcome within type, at least 2 of each outcome per type. This removes the majority-class confound and makes the direction of each flip meaningful.

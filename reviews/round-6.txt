@@ -1,0 +1,13 @@
+Walked all 96 lines of r5 myself.
+
+New blocking problems: NONE
+
+Non-blocking notes (4):
+
+1. **draw.py is committed in step 2 with its own output.** Line 51 names it, but step (1) on line 53 lists only candidates.py, select_single.py, the log and the keys. Add draw.py to step (1) so every script is committed before the artefact it produces.
+
+2. **Exclusion (iv) uses a narrower phrase than the P key.** Line 21 and line 45 define renegotiate as "due moved or revision announced"; line 49 excludes only "a revision announced earlier than the decision time". A due date moved at due minus 48 h is excluded under one reading and a key yes under the other. Both are fixed in step 1, so not blocking, but write (iv) with the same phrase as line 45.
+
+3. **The project-folder abort will fire on the second call.** Line 79 aborts if the run directory's folder under ~/.claude/projects/ is non-empty, but `claude -p` writes a session transcript there after the first call. Name the memory subfolder specifically. Also extend the rule on lines 84 to 85 to any change of call.py: a runner edit after the first task call discards all task outputs so far, not just those before a probe fix.
+
+4. **Three failed transport re-issues have no stated outcome.** Line 64 allows up to 3 re-issues and stops. Say what follows: treat the task as invalid in that arm, so it drops from all four arms and is reported with the arm that failed, the same as a parse failure.

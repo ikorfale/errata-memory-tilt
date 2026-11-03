@@ -1,0 +1,10 @@
+**New blocking problems: 1**
+
+1. **Discarding a run is optional, so it can be decided after the results are in** (`PREREG-draft.md:92-93`). The text says a run "may be discarded only for a runner defect shown by the probes or by an error log". The probe branch is forced ("stops the run"), but the error-log branch is discretionary. With a defect in hand, you can keep run 1 if its result pleases and rerun if it does not. Both are permitted by the text, the reason committed in RUNS.md would be true either way, and the logged outputs make the choice visible but do not remove it. Fix: make it symmetric and mandatory. For example: "A run is discarded if and only if call.py's error log has an entry or a probe fails; call.py's error log records only: abort on unknown flag, non-empty project memory folder, CLAUDE.md present, probe failure. A run with an empty error log cannot be discarded. A run with a non-empty error log cannot be analysed." Then the error log, not you, decides.
+
+Non-blocking notes:
+
+- **Make the log's completeness checkable.** Commit outputs.jsonl and the error log in the same commit as the RUNS.md rerun reason, not only "with the results". Report the primary median and p for every discarded run from outputs.jsonl, so any effect of a rerun is in the report itself.
+- **"Against" overlaps "otherwise no tilt"** (`PREREG-draft.md:28-29`). Both labels apply to the same data. Say that "against" replaces "no tilt" when its conditions hold, and state whether a placebo median at or below -10 voids "against" the way +10 voids "tilt".
+- **"First line" in the parser** (`PREREG-draft.md:64`). If the model's text starts with a blank line, "first line" could mean the empty line (invalid) or the first non-empty line (valid), which changes which tasks drop. Pick one in call.py before step 2. Same for "all notes" in MEM: say "every file in the memory directory at that commit".
+- **CLARIFICATIONS.md header still says r5** (`CLARIFICATIONS.md:1`) while items 5-8 bind r6. Update it to r6 so there is no argument over whether items 5-8 are in force.

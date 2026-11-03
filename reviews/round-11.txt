@@ -1,0 +1,14 @@
+I read both files in full and walked r9 line by line. Two blocking points, both in the new "one run" paragraph and the probe rule it inherits.
+
+**New blocking problems: 2**
+
+1. **Failed probe at a resume has two contradictory rules.** Line 95-97 says a failed probe "stops the run; the fix is a new step-2 commit, the probes are re-run and re-recorded under it, and no task call made before the fix is kept." That sentence can only refer to probes run after task calls exist, i.e. at a resume. Line 105-106 says a failed probe at a resume "stops the experiment: it is reported as failed with the cells so far, and not analysed." Reading A gives a fresh continuation under new code with every cell discarded, which is the rerun r9 claims to forbid. Reading B gives no verdict at all. The two readings give different results. Delete the line 96-97 clause, or restrict it explicitly to probes before the first task call.
+
+2. **The hash check is not pinned to one commit, so it can be satisfied by making a new commit.** Line 101 compares call.py with "the step-2 commit's blob", but the text itself allows several step-2 commits (lines 94-97). If the reference is the latest step-2 commit, you can edit call.py mid-run after seeing cells, commit it as "step-2", and continue with every cell kept. CLARIFICATIONS item 3 assumes the check is binding; under this reading it is not. Fix: the run id is the hash of the step-2 commit current at the first task call, written as the first line of outputs.jsonl, and call.py compares against that blob only. No step-2 commit after the first task call is recognised.
+
+Non-blocking notes:
+
+- **Only call.py is hashed.** The system prompt file, the four templates, probe_markers.txt, key.json, placebo_pool.txt and select_single.py are read from the working tree and could change mid-run. Verify each against the pinned commit's blob before every call, as part of the fix for point 2.
+- **Transport drops are the one per-task lever left.** Calls run in random order across arms, so a task's MEM cell may be known before its CLEAN cell, and three transport failures can be induced from the network side. Report every transport-dropped task with the cells it already had so the pattern is visible.
+- **In-flight call at an interruption.** Say whether its re-issue consumes one of the three transport attempts, and log the request line before the response line so a lost in-flight call shows up in outputs.jsonl.
+- **A pause that is never resumed has no reporting rule.** Line 105 covers only the failed probe. State that a run not resolved by a fixed date, for example seven days after the first task call, is reported as unfinished with its cells, so a silent no-verdict outcome is not available.

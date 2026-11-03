@@ -1,0 +1,13 @@
+**New blocking problems: NONE**
+
+I walked the full r11 text (lines 1-135) and the clarifications file. Verdict logic, draw, keys, pinning, run-id, resume, drop rule and analysis gate are each fixed before any outcome is visible, and I found no sentence that two readers would apply differently to the same cells.
+
+Non-blocking notes:
+
+1. **Stale phrase at line 118.** "except by the parse and transport drop rules" still names a transport drop rule, but r11 has none (lines 77-78 say transport never drops, and CLARIFICATIONS item 4 is struck). Strike "and transport" so no reader looks for a second drop rule.
+
+2. **self.md provenance.** Line 82 takes self.md "at the last memory-git commit" and line 108 builds prompts from the checkout only. That implies self.md is tracked in memory-git. State it once explicitly, since the checkout content hash in tasks.jsonl covers nothing outside that repo.
+
+3. **SINGLE keyword match.** Line 84-85 lists keywords but not whether the match is case-insensitive or a substring on the index line. select_single.py is committed in step 1 and tasks.jsonl pins the chosen file, so nothing is open, but one clause in the prose would stop the text and script from diverging.
+
+4. **"First probe call" used two ways.** Line 111 pins the run id to the commit at "the first probe call", while line 113 says a probe fix makes "a new first probe call". Rewording to "the first probe call under the commit current at the first task call" removes the apparent contradiction without changing the rule.

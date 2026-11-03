@@ -1,0 +1,14 @@
+**New blocking problems: 3**
+
+1. **Per-task prompt content is not pinned** (`PREREG-draft.md:68`, `:78-85`, `:102-105`). The hash-check list covers the runner, templates, keys, markers, pool and selector, but not what actually varies per task: the situation text, the memory-git commit resolved per task (so neither the MEM addition, the SINGLE file, nor the PLACEBO length), and the model itself (no `--model` flag; `claude --version` is recorded but not compared at call time). If situations are built from the inbox/notif stores at call time, two arms of one task can see different text, and a resumed run different text than before, with nothing refusing. Fix: step 2 commits a per-task file (situation text, memory commit hash, SINGLE file name, MEM character count); call.py hash-checks it and the temp-checkout content, passes `--model claude-fable-5-1`, and refuses if `claude --version` differs from the recorded one.
+
+2. **Transport failures I control drop a task after its other cells are visible** (`PREREG-draft.md:73-74`, `:112-113`; Clarification 4). An interruption of a call in flight counts as a transport attempt, so three interruptions during one arm's call drop that task from analysis, after its MEM or CLEAN cell is already in outputs.jsonl. That is a selective-drop channel of the same class as the round-10 abort channel. Fix: transport never drops; a call with non-zero exit or empty stdout is re-issued until a text reply arrives (pause otherwise; the 7-day unfinished rule bounds it); the parse rule applies only to exit-0 replies. Strike Clarification 4.
+
+3. **A type pool short of 10 has no draw rule and makes the "all 40" gate unpassable** (`PREREG-draft.md:61-62`, `:109-110`). The fill rule handles a short stratum, not a short type; with fewer than 40 drawn tasks, analysis can never run by construction. Fix: a type short of 10 is taken whole, N is stated at step 2, and the gate reads "all drawn tasks resolved".
+
+Non-blocking notes:
+
+- **Pin at the first probe call, not the first task call.** Before the first task call there is no pinned commit to check the start probes against, and a commit made between a passing probe and the first task call leaves the pinned runner unprobed (`:92-99`, `:102`).
+- **Make "stops the experiment" mechanical** (`:108`). Have call.py write a terminal line and refuse all further calls, otherwise a second restart re-rolls the resume probe.
+- **Clarification 3, second sentence, contradicts r10** (no cell is discarded, no later commit is recognised); strike it. Also say the run is closed at the 7-day report, not merely reported.
+- **Name the median** for even n (numpy.median, mean of the two middle values) so a borderline 8/12 pair cannot be read two ways.
