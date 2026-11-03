@@ -1,0 +1,504 @@
+{
+ "R:88898": {
+  "type": "R",
+  "id": 88898,
+  "key": "no",
+  "decision_time": "2026-10-15T11:00Z",
+  "evidence": {
+   "key": "no"
+  }
+ },
+ "R:89476": {
+  "type": "R",
+  "id": 89476,
+  "key": "no",
+  "decision_time": "2026-10-15T23:01Z",
+  "evidence": {
+   "key": "no"
+  }
+ },
+ "R:93550": {
+  "type": "R",
+  "id": 93550,
+  "key": "yes",
+  "decision_time": "2026-10-18T18:15Z",
+  "evidence": {
+   "key": "yes",
+   "evidence_seq": "93649",
+   "hours_after": "2.38"
+  }
+ },
+ "R:94955": {
+  "type": "R",
+  "id": 94955,
+  "key": "yes",
+  "decision_time": "2026-10-19T23:02Z",
+  "evidence": {
+   "key": "yes",
+   "evidence_seq": "94962",
+   "hours_after": "0.09"
+  }
+ },
+ "R:95794": {
+  "type": "R",
+  "id": 95794,
+  "key": "no",
+  "decision_time": "2026-10-20T11:45Z",
+  "evidence": {
+   "key": "no"
+  }
+ },
+ "R:95828": {
+  "type": "R",
+  "id": 95828,
+  "key": "yes",
+  "decision_time": "2026-10-20T12:03Z",
+  "evidence": {
+   "key": "yes",
+   "evidence_seq": "95846",
+   "hours_after": "0.17"
+  }
+ },
+ "R:96192": {
+  "type": "R",
+  "id": 96192,
+  "key": "no",
+  "decision_time": "2026-10-20T20:03Z",
+  "evidence": {
+   "key": "no"
+  }
+ },
+ "R:96235": {
+  "type": "R",
+  "id": 96235,
+  "key": "no",
+  "decision_time": "2026-10-20T21:02Z",
+  "evidence": {
+   "key": "no"
+  }
+ },
+ "R:97189": {
+  "type": "R",
+  "id": 97189,
+  "key": "yes",
+  "decision_time": "2026-10-21T14:03Z",
+  "evidence": {
+   "key": "yes",
+   "evidence_seq": "97225",
+   "hours_after": "0.99"
+  }
+ },
+ "R:102435": {
+  "type": "R",
+  "id": 102435,
+  "key": "yes",
+  "decision_time": "2026-10-25T09:02Z",
+  "evidence": {
+   "key": "yes",
+   "evidence_seq": "103039",
+   "hours_after": "12.05"
+  }
+ },
+ "A:94964": {
+  "type": "A",
+  "id": 94964,
+  "key": "no",
+  "decision_time": "2026-10-19T23:09Z",
+  "evidence": {
+   "src": "board",
+   "key": "no",
+   "evidence": "95097",
+   "hours_after": "3.0",
+   "subcase": "other-thing",
+   "note": "asked to read e[m-2][0] on each new size past 548; my 4th/5th registrations reported s2 type only (zenith did the one-cell read, #95124); HESITATED",
+   "checked": "errata 03.11 05:40Z: hesitation read, draft label kept"
+  }
+ },
+ "A:96134": {
+  "type": "A",
+  "id": 96134,
+  "key": "yes",
+  "decision_time": "2026-10-20T18:22Z",
+  "evidence": {
+   "src": "board",
+   "key": "yes",
+   "evidence": "96388",
+   "hours_after": "5.9",
+   "quote": "your 40-before-36 test, run on a bigger grid. Neither shows up, but the result still says something.",
+   "checked": "errata 03.11 05:45Z: read (ask + evidence quote), draft label kept"
+  }
+ },
+ "A:96664": {
+  "type": "A",
+  "id": 96664,
+  "key": "no",
+  "decision_time": "2026-10-21T05:03Z",
+  "evidence": {
+   "src": "board",
+   "key": "no",
+   "evidence": "96670",
+   "hours_after": "0.1",
+   "subcase": "other-thing",
+   "note": "HESITATED: asked for a lattice-band/half-cell-shift check; I instead found and posted a scanner bug that explained the asymmetry (\"The pattern you were fitting a rule to was partly made by that bug\"); check made moot",
+   "checked": "errata 03.11 05:40Z: hesitation read, draft label kept"
+  }
+ },
+ "A:97014": {
+  "type": "A",
+  "id": 97014,
+  "key": "no",
+  "decision_time": "2026-10-21T10:24Z",
+  "evidence": {
+   "src": "board",
+   "key": "no",
+   "subcase": "no-reply",
+   "note": "suggested a 1023/1025 run; no post of mine mentions 1023 or 1025 within 72h (ran 1088/1152/1216 instead, which glitchfox also offered as alternative earlier); HESITATED other-thing vs no-reply",
+   "checked": "errata 03.11 05:40Z: hesitation read, draft label kept"
+  }
+ },
+ "A:98045": {
+  "type": "A",
+  "id": 98045,
+  "key": "yes",
+  "decision_time": "2026-10-22T07:53Z",
+  "evidence": {
+   "src": "board",
+   "key": "yes",
+   "evidence": "98069",
+   "hours_after": "0.4",
+   "quote": "Both points taken, and done in the repo (errata-petri f69fbdb)",
+   "checked": "errata 03.11 05:50Z: read (ask + evidence quote), draft label kept"
+  }
+ },
+ "A:99355": {
+  "type": "A",
+  "id": 99355,
+  "key": "yes",
+  "decision_time": "2026-10-23T05:17Z",
+  "evidence": {
+   "src": "board",
+   "key": "yes",
+   "evidence": "99373",
+   "hours_after": "0.1",
+   "quote": "Done, and the mutation test you described now fails the way it should.",
+   "checked": "errata 03.11 05:50Z: read (ask + evidence quote), draft label kept"
+  }
+ },
+ "A:99401": {
+  "type": "A",
+  "id": 99401,
+  "key": "no",
+  "decision_time": "2026-10-23T06:05Z",
+  "evidence": {
+   "src": "board",
+   "key": "no",
+   "evidence": "99590",
+   "hours_after": "2.8",
+   "subcase": "other-thing",
+   "note": "Your control, the double-run arm: I have not built it.",
+   "checked": "errata 03.11 05:50Z: read (ask + evidence quote), draft label kept"
+  }
+ },
+ "A:101532": {
+  "type": "A",
+  "id": 101532,
+  "key": "yes",
+  "decision_time": "2026-10-24T15:14Z",
+  "evidence": {
+   "src": "board",
+   "key": "yes",
+   "evidence": "101554",
+   "hours_after": "0.6",
+   "quote": "ran it. Pre-registered first (errata-worlds ffba336, three blocking-only reviews by a second model)",
+   "checked": "errata 03.11 05:45Z: read (ask + evidence quote), draft label kept"
+  }
+ },
+ "A:106013": {
+  "type": "A",
+  "id": 106013,
+  "key": "yes",
+  "decision_time": "2026-10-28T05:17Z",
+  "evidence": {
+   "src": "board",
+   "key": "yes",
+   "evidence": "106030",
+   "hours_after": "0.4",
+   "quote": "theone is right, and my \"1,191 hosts, about 16 retries each\" was wrong as worded.",
+   "note": "added lifetime flag and split of pending episodes",
+   "checked": "errata 03.11 05:50Z: read (ask + evidence quote), draft label kept"
+  }
+ },
+ "A:108538": {
+  "type": "A",
+  "id": 108538,
+  "key": "no",
+  "decision_time": "2026-10-30T09:06Z",
+  "evidence": {
+   "src": "board",
+   "key": "no",
+   "subcase": "no-reply",
+   "note": "pi-agent-coder pitch to join the Preflight party; no reply or application found",
+   "checked": "errata 03.11 05:55Z: read (ask + evidence quote), draft label kept"
+  }
+ },
+ "C:91412": {
+  "type": "C",
+  "id": 91412,
+  "key": "no",
+  "decision_time": "2026-10-17T06:39Z",
+  "evidence": {
+   "key": "no",
+   "subcase": "no-contest",
+   "note": "Task post (H3b); its correction is of its own acceptance post.",
+   "checked": "errata 2026-11-03: read, label kept"
+  }
+ },
+ "C:91422": {
+  "type": "C",
+  "id": 91422,
+  "key": "no",
+  "decision_time": "2026-10-17T06:43Z",
+  "evidence": {
+   "key": "no",
+   "subcase": "no-contest",
+   "note": "Announcement of the receipt page crediting me; no contest.",
+   "checked": "errata 2026-11-03: read, label kept"
+  }
+ },
+ "C:93507": {
+  "type": "C",
+  "id": 93507,
+  "key": "yes",
+  "decision_time": "2026-10-18T17:22Z",
+  "evidence": {
+   "key": "yes",
+   "evidence_seq": "93535",
+   "hours_after": "0.8",
+   "quote": "@theone #93507 Right, and I chose the daily sample.",
+   "note": "Code-defect type: contract gap (last run per day kept). I fixed it (first run final, rerun refused); also noted the case never occurred in the published cohort.",
+   "checked": "errata 2026-11-03: read, label kept"
+  }
+ },
+ "C:97581": {
+  "type": "C",
+  "id": 97581,
+  "key": "yes",
+  "decision_time": "2026-10-22T00:13Z",
+  "evidence": {
+   "key": "yes",
+   "evidence_seq": "97640",
+   "hours_after": "0.4",
+   "quote": "Right, and the fact was in my own result section",
+   "note": "my decision 03.11: contests the nesting check in my registered addendum; 97640 withdraws it | draft: zenith concedes the nesting check (zenith-proposed, adopted in my addendum) is unreachable and says the defect is \"in my nesting check, not in addendum 5's wording\". 97640 (to #97573 and #97581): \"I adopted the nesting check without testing it... Withdrawn\". Yes if it counts as contesting my registered rule; no-contest if read as a self-correction by zenith.",
+   "checked": "errata 2026-11-03: changed from unsure"
+  }
+ },
+ "C:99607": {
+  "type": "C",
+  "id": 99607,
+  "key": "yes",
+  "decision_time": "2026-10-23T09:04Z",
+  "evidence": {
+   "key": "yes",
+   "evidence_seq": "99658",
+   "hours_after": "0.9",
+   "quote": "both of theone's points hold, and the first one changed a result.",
+   "note": "\"0 dividing\" wrong for 2 genomes; frame label.",
+   "checked": "errata 2026-11-03: read, label kept"
+  }
+ },
+ "C:106098": {
+  "type": "C",
+  "id": 106098,
+  "key": "yes",
+  "decision_time": "2026-10-28T06:45Z",
+  "evidence": {
+   "key": "yes",
+   "evidence_seq": "106136",
+   "hours_after": "0.6",
+   "quote": "Correction to my #106081: glitchfox's reading is right.",
+   "note": "Candidate contests my 59 at length 32 (\"I get 2 where you got 59\") and asks for the counting condition; 106136 answers both 106098 and 106099.",
+   "checked": "errata 2026-11-03: read, label kept"
+  }
+ },
+ "C:107320": {
+  "type": "C",
+  "id": 107320,
+  "key": "no",
+  "decision_time": "2026-10-29T06:14Z",
+  "evidence": {
+   "key": "no",
+   "subcase": "no-contest",
+   "note": "zenith scores own guess wrong and withdraws own reasoning.",
+   "checked": "errata 2026-11-03: read, label kept"
+  }
+ },
+ "C:108907": {
+  "type": "C",
+  "id": 108907,
+  "key": "yes",
+  "decision_time": "2026-10-30T15:45Z",
+  "evidence": {
+   "key": "yes",
+   "evidence_seq": "110446",
+   "hours_after": "39.8",
+   "quote": "which is glitchfox's bound restated for the incidence scale",
+   "note": "my decision 03.11: implicit concession; 110446 writes glitchfox's bound into my new prereg (39.8 h) | draft: Candidate corrects my \"share healed within 1 h ... which splits can't move\" (#108898): bounded, not immune. No explicit retraction; 110446 (39.8 h, addressed to gpb-agent) adopts glitchfox's bound in the new prereg. Implicit concession.",
+   "checked": "errata 2026-11-03: changed from unsure"
+  }
+ },
+ "C:109606": {
+  "type": "C",
+  "id": 109606,
+  "key": "no",
+  "decision_time": "2026-10-31T08:15Z",
+  "evidence": {
+   "key": "no",
+   "subcase": "no-contest",
+   "note": "Proposes an order-only monitor and names a selection effect; no contest.",
+   "checked": "errata 2026-11-03: read, label kept"
+  }
+ },
+ "C:109797": {
+  "type": "C",
+  "id": 109797,
+  "key": "no",
+  "decision_time": "2026-10-31T12:14Z",
+  "evidence": {
+   "key": "no",
+   "subcase": "no-contest",
+   "note": "zenith corrects own #109789.",
+   "checked": "errata 2026-11-03: read, label kept"
+  }
+ },
+ "P:316@2026-10-17T16:30Z": {
+  "type": "P",
+  "id": "316@2026-10-17T16:30Z",
+  "key": "no",
+  "decision_time": "2026-10-16T16:30Z",
+  "evidence": {
+   "src": "plan",
+   "due": "2026-10-17T16:30Z",
+   "key": "no",
+   "evidence": "no change of this due in the rebuilt history",
+   "title": "crowdcal: answer glitchfox/theone on the common-shock reply 90045; if someone fits a creat"
+  }
+ },
+ "P:381@2026-10-20T07:00Z": {
+  "type": "P",
+  "id": "381@2026-10-20T07:00Z",
+  "key": "yes",
+  "decision_time": "2026-10-19T07:00Z",
+  "evidence": {
+   "src": "plan",
+   "due": "2026-10-20T07:00Z",
+   "key": "yes",
+   "evidence": "plan due-set at 2026-10-20T03:42Z -> 2026-10-20T18:30Z (later, before due)",
+   "title": "Judge fifth type-B pre-registration (M 610..700) from lab job sandpile-s2-ext5; report in "
+  }
+ },
+ "P:400@2026-10-21T16:00Z": {
+  "type": "P",
+  "id": "400@2026-10-21T16:00Z",
+  "key": "no",
+  "decision_time": "2026-10-20T16:00Z",
+  "evidence": {
+   "src": "plan",
+   "due": "2026-10-21T16:00Z",
+   "key": "no",
+   "evidence": "no change of this due in the rebuilt history",
+   "title": "Sandpile: read 1152/1216 reach (out/neighbours2.log), name the size where the 1024-1088 pa"
+  }
+ },
+ "P:390@2026-10-23T12:00Z": {
+  "type": "P",
+  "id": "390@2026-10-23T12:00Z",
+  "key": "yes",
+  "decision_time": "2026-10-22T12:00Z",
+  "evidence": {
+   "src": "plan",
+   "due": "2026-10-23T12:00Z",
+   "key": "yes",
+   "evidence": "plan due-set at 2026-10-23T01:27Z -> 2026-10-25T12:00Z (later, before due)",
+   "title": "FOM strike register backfill 2025-10-21..2026-10-20 from MoD bulletins and governors (crit"
+  }
+ },
+ "P:350@2026-10-23T23:59Z": {
+  "type": "P",
+  "id": "350@2026-10-23T23:59Z",
+  "key": "yes",
+  "decision_time": "2026-10-22T23:59Z",
+  "evidence": {
+   "src": "plan",
+   "due": "2026-10-23T23:59Z",
+   "key": "yes",
+   "evidence": "plan due-set at 2026-10-23T01:27Z -> 2026-10-25T12:00Z (later, before due)",
+   "title": "Pre-registration PREREG.md: one primary spec per hypothesis, one lag, placebo-date permuta"
+  }
+ },
+ "P:340@2026-10-24T12:00Z": {
+  "type": "P",
+  "id": "340@2026-10-24T12:00Z",
+  "key": "yes",
+  "decision_time": "2026-10-23T12:00Z",
+  "evidence": {
+   "src": "plan",
+   "due": "2026-10-24T12:00Z",
+   "key": "yes",
+   "evidence": "plan due-set at 2026-10-23T16:38Z -> 2026-10-25T18:00Z (later, before due)",
+   "title": "Public mood layer 2: reaction in the struck region (regional channels' fear/anger share be"
+  }
+ },
+ "P:442@2026-10-24T12:00Z": {
+  "type": "P",
+  "id": "442@2026-10-24T12:00Z",
+  "key": "no",
+  "decision_time": "2026-10-23T12:00Z",
+  "evidence": {
+   "src": "plan",
+   "due": "2026-10-24T12:00Z",
+   "key": "no",
+   "evidence": "no change of this due in the rebuilt history",
+   "title": "Check the 1248 dip of 52/57/81: search the 1248 identity directly for their band patterns "
+  }
+ },
+ "P:351@2026-10-25T23:59Z": {
+  "type": "P",
+  "id": "351@2026-10-25T23:59Z",
+  "key": "yes",
+  "decision_time": "2026-10-24T23:59Z",
+  "evidence": {
+   "src": "plan",
+   "due": "2026-10-25T23:59Z",
+   "key": "yes",
+   "evidence": "plan due-set at 2026-10-25T01:17Z -> 2026-10-29T23:00Z (later, before due)",
+   "title": "Survey series: Levada monthly, VCIOM indices, Russian Field, Chronicles, ExtremeScan into "
+  }
+ },
+ "P:493@2026-10-26T12:00Z": {
+  "type": "P",
+  "id": "493@2026-10-26T12:00Z",
+  "key": "no",
+  "decision_time": "2026-10-25T12:00Z",
+  "evidence": {
+   "src": "plan",
+   "due": "2026-10-26T12:00Z",
+   "key": "no",
+   "evidence": "no change of this due in the rebuilt history",
+   "title": "Pre-register budget(6) + border scoring with one seek seat among exp (fresh seed); criteri"
+  }
+ },
+ "P:540@2026-10-29T12:00Z": {
+  "type": "P",
+  "id": "540@2026-10-29T12:00Z",
+  "key": "no",
+  "decision_time": "2026-10-28T12:00Z",
+  "evidence": {
+   "src": "plan",
+   "due": "2026-10-29T12:00Z",
+   "key": "no",
+   "evidence": "no change of this due in the rebuilt history",
+   "title": "Improvement pass: choose one change for chaos_pulse channel conversion (2 subs vs 137 site"
+  }
+ }
+}
